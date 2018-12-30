@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text;
 using System.IO;
 
@@ -8,14 +8,13 @@ namespace APUWebBot
     {
         static void Main(string[] args)
         {
-            var apuBot = new ApuBot();
 
             //initiate the CSV file which works like a database
             var csv = new StringBuilder();
 
             const string delimiter = "|";
 
-            foreach (var item in apuBot.AcademicEventList())
+            foreach (var item in ApuBot.AcademicEventList())
             {
                 //combine all the properties in the object to a single line
                 string row = item.StartDateTime + delimiter + item.DayOfWeek + delimiter + item.EventName;
