@@ -18,13 +18,8 @@ namespace APUWebBot.Models
         public string StartDateTime { get; set; }
 
         //GroupDate is formatted as yyyy/MM, this is only used for list grouping reasons
-        public string GroupDate
-        {
-            get
-            {
-                return StartDateTime.Remove(7);
-            }
-        }
+        public string GroupDate { get { return StartDateTime.Remove(7); } }
+        
         //by default the event will happen all day long so it'll be same as the starting date
         public string EndDateTime { get { return StartDateTime; } }
 
