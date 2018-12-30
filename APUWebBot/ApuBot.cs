@@ -1,6 +1,9 @@
-﻿using System;
+using System;
+using System.Diagnostics;
 using HtmlAgilityPack;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using APUWebBot.Models;
 
 
 namespace APUWebBot
@@ -8,18 +11,18 @@ namespace APUWebBot
     /// <summary>
     /// A class for accessing the APU Academic Office homepage and get information
     /// </summary>
-    public class ApuBot
+    public static class ApuBot
     {
 
         //the delimiter for dividing the cells
-        const string delimiter = "|";
+        const char delimiter = '|';
 
         /// <summary>
         /// This will output all the links found in the Academic Office menu as a string
         /// </summary>
         /// <returns>The links from page.</returns>
         /// <param name="menu">Menu.</param>
-        public List<string> GetLinksFromPage(string menu = "01")
+        public static List<string> GetLinksFromPage(string menu = "01")
         {
 
             //Link of the Academic Office homepage, this will be the starting location=
@@ -60,6 +63,7 @@ namespace APUWebBot
             }
             catch (Exception)
             {
+
                 //if there is no link, or some other problem comes up, output an
                 return null;
             }
@@ -70,7 +74,7 @@ namespace APUWebBot
         /// </summary>
         /// <returns>The value from table.</returns>
         /// <param name="uri">URI.</param>
-        public List<string> GetValueFromTable(string uri)
+        public static List<string> GetValueFromTable(string uri)
         {
             try
             {
@@ -119,7 +123,7 @@ namespace APUWebBot
                             //change the date column to Date|Month (only applies for the first row
                             if (currentCell == "Date") { currentCell = "Date" + delimiter + "Month"; }
                             //replace the - to a delimiter
-                            currentCell = currentCell.Replace("-", delimiter);
+                            currentCell = currentCell.Replace('-', delimiter);
                         }
 
                         //check if it is the first column
@@ -145,9 +149,10 @@ namespace APUWebBot
                 }
                 return calendarItem;
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 //failed to get the node from the site
+                Debug.WriteLine("Error while getting the list " + e);
                 return null;
             }
         }
@@ -157,7 +162,7 @@ namespace APUWebBot
         /// </summary>
         /// <returns>The to date time.</returns>
         /// <param name="input">Input.</param>
-        public string ChangeDateFormat(string input)
+        public static string ChangeDateFormat(string input)
         {
             Dictionary<string, string> monthToNumber = new Dictionary<string, string>
             {
@@ -204,10 +209,10 @@ namespace APUWebBot
         /// <summary>
         /// Gets the content of the table in the Academic Calendar
         /// </summary>
-        public List<Item> AcademicEventList()
+        public static ObservableCollection<Item> AcademicEventList()
         {
             //this method will output the list of items
-            List<Item> items = new List<Item>();
+            ObservableCollection<Item> items = new ObservableCollection<Item>();
 
             //menu number 1 represents the Academic Calendar
             //iterate through all the links in the menu
@@ -228,36 +233,13 @@ namespace APUWebBot
                     //add the item with the given parameters
                     items.Add(new Item
                     {
-                        Id = Guid.NewGuid().ToString(),
+                        //Id = Guid.NewGuid().ToString(),
                         EventName = calendarItems[2],
-                        DayOfWeek = calendarItems[1],
-                        StartDateTime = calendarItems[0],
-                        EndDateTime = calendarItems[0]
+                        StartDateTime = calendarItems[0]
                     });
                 }
             }
             return items;
         }
-    }
-
-    public interface IContnet
-    {
-        string Id { get; set; }
-        string EventName { get; set; }
-        string DayOfWeek { get; set; }
-        string StartDateTime { get; set; }
-        string EndDateTime { get; set; }
-
-    }
-
-    public class Item : IContnet
-    {
-        public string Id { get; set; }
-        public string EventName { get; set; }
-        //public string EventNotes { get; set; }
-        public string DayOfWeek { get; set; }
-        public string StartDateTime { get; set; }
-        //by default the event will happen all day long
-        public string EndDateTime { get; set; }
     }
 }
