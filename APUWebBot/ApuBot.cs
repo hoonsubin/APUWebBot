@@ -202,7 +202,7 @@ namespace APUWebBot
                 acaEvent[4] = acaEvent[5];
             }
             //mark national holidays into classes as usual
-            else if (acaEvent[5] == "Classes as usual")
+            else if (acaEvent[5].Contains("Classes as usual"))
             {
                 acaEvent[4] = acaEvent[4] + "(" + acaEvent[5] + ")";
             }
