@@ -17,6 +17,9 @@ namespace APUWebBot
         //the delimiter for dividing the cells
         const char delimiter = '|';
 
+        //link for english academic calendar
+        const string enAcademicCalendarUri = "http://en.apu.ac.jp/academic/top/curriculum_17.html/?c=17";
+
         /// <summary>
         /// This will output all the links found in the Academic Office menu as a string
         /// </summary>
@@ -26,7 +29,7 @@ namespace APUWebBot
         {
 
             //Link of the Academic Office homepage, this will be the starting location=
-            string uri = "http://en.apu.ac.jp/academic/top/curriculum_17.html/?c=17";
+            string uri = enAcademicCalendarUri;
 
             //XPath syntax for searching the Academic Office page menus
             string xpath = $"//div[contains(@class, 'menu_title curriculum{menu}')]";
@@ -241,5 +244,7 @@ namespace APUWebBot
             }
             return items;
         }
+
+
     }
 }
