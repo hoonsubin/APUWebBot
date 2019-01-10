@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using APUWebBot.Models;
 
-
+//don't forget to change the namespace and the using libraries when implementing this to the app
 namespace APUWebBot
 {
     /// <summary>
