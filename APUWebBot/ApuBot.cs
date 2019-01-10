@@ -21,7 +21,7 @@ namespace APUWebBot
         const string enAcademicCalendarUri = "http://en.apu.ac.jp/academic/top/curriculum_17.html/?c=17";
 
         /// <summary>
-        /// This will output all the links found in the Academic Office menu as a string
+        /// Get all the links found in the Academic Office menu as a string
         /// </summary>
         /// <returns>The links from page.</returns>
         /// <param name="menu">Menu.</param>
@@ -73,7 +73,7 @@ namespace APUWebBot
         }
 
         /// <summary>
-        /// This method will get all the text from the calendar table
+        /// Scrape all the text from the calendar table. This will only scrape the table for content.
         /// </summary>
         /// <returns>The value from table.</returns>
         /// <param name="uri">URI.</param>
@@ -161,11 +161,11 @@ namespace APUWebBot
         }
 
         /// <summary>
-        /// A method that will convert the input string into DateTime struct
+        /// Convert the input event string into a more cleaner format for prcessing
         /// </summary>
         /// <returns>The to date time.</returns>
-        /// <param name="input">Input.</param>
-        public static string ChangeDateFormat(string input)
+        /// <param name="inputEvent">Input.</param>
+        public static string ChangeDateFormat(string inputEvent)
         {
             Dictionary<string, string> monthToNumber = new Dictionary<string, string>
             {
@@ -188,7 +188,7 @@ namespace APUWebBot
             //this will change the format to [year/month/date]|[day of month]|[holiday]
 
             //split the input string by the delimiter
-            string[] acaEvent = input.Split(delimiter);
+            string[] acaEvent = inputEvent.Split(delimiter);
 
             //convert the string to integer, and back to string for formatting
             int intDay = int.Parse(acaEvent[1]);
@@ -201,6 +201,12 @@ namespace APUWebBot
             {
                 acaEvent[4] = acaEvent[5];
             }
+            //mark national holidays into classes as usual
+            else if (acaEvent[5] == "Classes as usual")
+            {
+                acaEvent[4] = acaEvent[4] + "(" + acaEvent[5] + ")";
+            }
+
 
             //make the final date time string with adding 
             string dateTime = joinedDate + delimiter + acaEvent[3] + delimiter + acaEvent[4];
@@ -210,8 +216,9 @@ namespace APUWebBot
         }
 
         /// <summary>
-        /// Gets the content of the table in the Academic Calendar
+        /// Return the list of all academic events from the academic calendar
         /// </summary>
+        /// <returns>The event list</returns>
         public static ObservableCollection<Item> AcademicEventList()
         {
             //this method will output the list of items
