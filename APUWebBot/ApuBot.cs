@@ -425,7 +425,7 @@ namespace APUWebBot
                             InstructorJP = lectureArray[8],
                             InstructorEN = lectureArray[9],
                             Language = lectureArray[10],
-                            Grade = lectureArray[11],
+                            Grade = lectureArray[11].Remove(1, 2),
                             Field = lectureArray[12],
                             APS = lectureArray[13],
                             APM = lectureArray[14],

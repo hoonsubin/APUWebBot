@@ -77,14 +77,15 @@ namespace APUWebBot
 
         static void SreachLectureDemo(string query)
         {
+            Console.WriteLine("Searching...");
             var database = ApuBot.LecturesList();
 
             var searchResults = new List<LectureItem>();
 
-            Console.WriteLine("Searching...");
-
+            //loop through the database
             foreach(var i in database)
             {
+                //loop through the tags
                 foreach(var tag in i.SearchTags)
                 {
                     if (tag.Contains(query.ToLower()))
@@ -94,6 +95,7 @@ namespace APUWebBot
                 }
             }
 
+            //show the search results
             if (searchResults.Count > 0)
             {
                 foreach(var res in searchResults)
