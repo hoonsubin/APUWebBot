@@ -8,7 +8,14 @@ namespace APUWebBot
     {
         static void Main(string[] args)
         {
+            ReadTimeTableDemo();
+        }
 
+        /// <summary>
+        /// This demo will get the values from the academic calendar online, and convert that into a list
+        /// </summary>
+        static void AcademicCalendarDemo()
+        {
             //initiate the CSV file which works like a database
             var csv = new StringBuilder();
 
@@ -28,6 +35,13 @@ namespace APUWebBot
 
             //output the csv file
             File.WriteAllText(filePath, csv.ToString());
+        }
+
+        static void ReadTimeTableDemo()
+        {
+            //Console.WriteLine();
+            ApuBot.ReadTimeTableOnline(ApuBot.GetLinksFromMainPage("03")[0]);
+
         }
 
     }

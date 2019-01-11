@@ -3,6 +3,7 @@ using System.Diagnostics;
 using HtmlAgilityPack;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Net;
 using APUWebBot.Models;
 
 //don't forget to change the namespace and the using libraries when implementing this to the app
@@ -25,7 +26,7 @@ namespace APUWebBot
         /// </summary>
         /// <returns>The links from page.</returns>
         /// <param name="menu">Menu.</param>
-        public static List<string> GetLinksFromPage(string menu = "01")
+        public static List<string> GetLinksFromMainPage(string menu = "01")
         {
 
             //Link of the Academic Office homepage, this will be the starting location=
@@ -38,7 +39,7 @@ namespace APUWebBot
             string outLink;
 
             //declare a list that will contain all the uris found in the menj
-            var uriList = new List<String>();
+            var uriList = new List<string>();
 
             try
             {
@@ -226,7 +227,7 @@ namespace APUWebBot
 
             //menu number 1 represents the Academic Calendar
             //iterate through all the links in the menu
-            foreach (string i in GetLinksFromPage("01"))
+            foreach (string i in GetLinksFromMainPage("01"))
             {
                 //get the multiple lists
                 foreach (string row in GetValueFromTable(i))
@@ -250,6 +251,35 @@ namespace APUWebBot
                 }
             }
             return items;
+        }
+
+        public static void ReadTimeTableOnline(string timetableUri)
+        {
+            string xpath = $"//div[contains(@class, 'entry')]";
+
+            var timetableLinks = new List<string>();
+
+            //it loads the html document from the given link
+            HtmlWeb web = new HtmlWeb();
+            var document = web.Load(timetableUri);
+
+            //this defines the xlsx links in the html document, the ancestor of the element using the defined XPath
+            var pageBody = document.DocumentNode.SelectSingleNode(xpath);
+
+            //follow the sibling of the current node div with the given class
+            foreach (var a in pageBody.SelectNodes("./ul/li/a"))
+            {
+
+                using (var client = new WebClient())
+                {
+                    client.DownloadFile("http://en.apu.ac.jp" + a.Attributes["href"].Value, a.InnerText + ".xlsx");
+                }
+                Console.WriteLine("Downloaded " + a.InnerText);
+            }
+
+
+
+
         }
 
 
