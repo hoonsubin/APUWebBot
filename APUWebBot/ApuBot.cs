@@ -285,13 +285,6 @@ namespace APUWebBot
                     //where the xlsx file is
                     string xlsxDownloadUri = "http://en.apu.ac.jp" + a.Attributes["href"].Value;
 
-                    //download all the xlsx files in the Course Timetable page
-                    /*
-                    using (var client = new WebClient())
-                    {
-                        client.DownloadFile(xlsxUri, downloadPath + a.InnerText + ".xlsx");
-                    }
-                    */
                     //create a http request and response
                     var req = WebRequest.Create(xlsxDownloadUri);
                     var response = req.GetResponse();
@@ -334,6 +327,8 @@ namespace APUWebBot
                 //loop all worksheets
                 foreach (ExcelWorksheet worksheet in excelPackage.Workbook.Worksheets)
                 {
+                    string semesterAndCurriculum = worksheet.Cells[2, 1].Value.ToString();
+
                     //loop all rows
                     for (int y = worksheet.Dimension.Start.Row; y <= worksheet.Dimension.End.Row; y++)
                     {
@@ -342,21 +337,25 @@ namespace APUWebBot
                         for (int x = worksheet.Dimension.Start.Column; x <= worksheet.Dimension.End.Column; x++)
                         {
 
-                            //add the cell data to the List
+                            //check if there is anything in the cell
                             if (worksheet.Cells[y, x].Value != null)
                             {
-                                //get rid of the line break
+                                //get rid of the line break if it has it
                                 string currentItem = worksheet.Cells[y, x].Value.ToString().Replace("\n", "");
-                                //rawStringData.Add(worksheet.Cells[y, x].Value.ToString());
+
+                                //add the current column to the row string
                                 row += currentItem + delimiter;
                             }
                             else
                             {
+                                //add an empty column if there is no entry in the cell
                                 row += "Empty" + delimiter;
                             }
 
                         }
-                        row = row.Remove(row.Length - 1);
+                        //delte the final delimiter
+                        row += semesterAndCurriculum;
+                        //row = row.Remove(row.Length - 1);
                         rawStringData.Add(row);
                     }
                 }
@@ -365,9 +364,75 @@ namespace APUWebBot
             return rawStringData;
         }
 
-        public static List<LectureItem> GetLectureList(List<string> rawCells)
+        public static void DebugLectureItem()
+        {
+            //loop through the links that has the xlsx file
+            foreach (var i in GetTimetableAsMemStream(GetLinksFromMainPage("03")[0]))
+            {
+                foreach (var n in ReadRawXlsxFileStream(i))
+                {
+                    //split the string with the delimiter, making it to an array
+                    var lectureArray = n.Split(delimiter);
+
+                    Console.WriteLine("The array length is: " + lectureArray.Length);
+
+                    for (int e = 0; e < lectureArray.Length; e++)
+                    {
+                        Console.WriteLine("[" + lectureArray[e] + "]" + " in index " + e);
+                    }
+
+                    Console.WriteLine("========================");
+                }
+            }
+        }
+
+
+        public static List<LectureItem> LecturesList()
         {
             var lectures = new List<LectureItem>();
+
+            //loop through the links that has the xlsx file
+            foreach (var i in GetTimetableAsMemStream(GetLinksFromMainPage("03")[0]))
+            {
+                //loop through all the raw strings in the xlsx cell row by row
+                foreach (var n in ReadRawXlsxFileStream(i))
+                {
+                    //split the string with the delimiter, making it to an array
+                    var lectureArray = n.Split(delimiter);
+
+                    //only add the items that has a proper subject id
+                    if (lectureArray[5] != "Empty" && lectureArray[5] != "講義CD/Subject CD")
+                    {
+                        //split the semester and curriculum string into two
+                        string[] semesterOrCurr = lectureArray[15].Split("(");
+                        semesterOrCurr[0] = semesterOrCurr[0].Replace("Timetable", "").Trim();
+                        semesterOrCurr[1] = semesterOrCurr[1].Replace(")", "");
+
+                        //add the lecture item
+                        lectures.Add(new LectureItem
+                        {
+                            Term = lectureArray[0],
+                            DayOfWeek = lectureArray[1].Replace("/", "").Replace(".", ""),
+                            Period = lectureArray[2],
+                            Classroom = lectureArray[3],
+                            BuildingFloor = lectureArray[4],
+                            SubjectId = lectureArray[5],
+                            SubjectNameJP = lectureArray[6],
+                            SubjectNameEN = lectureArray[7],
+                            InstructorJP = lectureArray[8],
+                            InstructorEN = lectureArray[9],
+                            Language = lectureArray[10],
+                            Grade = lectureArray[11],
+                            Field = lectureArray[12],
+                            APS = lectureArray[13],
+                            APM = lectureArray[14],
+                            Semester = semesterOrCurr[0],
+                            Curriculum = semesterOrCurr[1]
+
+                        });
+                    }
+                }
+            }
 
             return lectures;
         }

@@ -32,7 +32,7 @@ namespace APUWebBot
                 csv.AppendLine(row);
             }
             //file path for the output
-            string filePath = @"output.csv";
+            string filePath = @"output-calendar.csv";
 
             //output the csv file
             File.WriteAllText(filePath, csv.ToString());
@@ -40,26 +40,23 @@ namespace APUWebBot
 
         static void ReadTimeTableDemo()
         {
+            const string delimiter = "|";
             //this only holds all the cell texts in the xlsx file
-            var lecutreList = new List<string>();
+            //var lecutreList = new List<string>();
+            var csv = new StringBuilder();
+            //string filePath = @"output-timetable.csv";
+
             try
             {
-                //loop through the links that has the xlsx file
-                foreach (var i in ApuBot.GetTimetableAsMemStream(ApuBot.GetLinksFromMainPage("03")[0]))
+
+                //loop through the links that has the xlsx file in the course timetable website
+                foreach (var i in ApuBot.LecturesList())
                 {
-                    //loop through all the raw strings in the xlsx cell
-                    foreach (var n in ApuBot.ReadRawXlsxFileStream(i))
-                    {
-                        lecutreList.Add(n);
-                    }
+                    //csv.AppendLine(i);
+                    Console.WriteLine(i.Term + delimiter + i.DayOfWeek + delimiter + i.SubjectNameEN + delimiter + i.SubjectId + delimiter + i.Semester + delimiter + i.Curriculum);
                 }
 
-                foreach(var i in lecutreList)
-                {
-                    Console.WriteLine(i);
-                }
-
-
+                //ApuBot.DebugLectureItem();
             }
             catch (Exception ex)
             {

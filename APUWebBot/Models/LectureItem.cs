@@ -31,11 +31,11 @@ namespace APUWebBot.Models
 
         public string InstructorJP { get; set; }
 
-        public string ImnstructorEN { get; set; }
+        public string InstructorEN { get; set; }
 
         public string Language { get; set; }
 
-        public int Grade { get; set; }
+        public string Grade { get; set; }
 
         public string Field { get; set; }
         //which field in APS
@@ -44,10 +44,12 @@ namespace APUWebBot.Models
         public string APM { get; set; }
 
         //add public SyllabusItem Syllabus { get; set; }
-
+        //what semester the lecture is (ex: 2018 Fall)
         public string Semester { get; set; }
 
         //the tags are used for searching, and will be dynamically generated
         public List<string> Tags { get; set; }
+
+        public string Curriculum { get; set; }
     }
 }
