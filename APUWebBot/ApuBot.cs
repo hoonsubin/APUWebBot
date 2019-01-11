@@ -261,7 +261,7 @@ namespace APUWebBot
         /// Downloads the timetables from the academic office website
         /// </summary>
         /// <param name="timetablePageUri">Timetable page URI</param>
-        public static List<Stream> GetTimetableAsMemStream(string timetablePageUri, string downloadPath = "")
+        public static List<Stream> GetTimetableAsMemStream(string timetablePageUri)
         {
             string xpath = $"//div[contains(@class, 'entry')]";
 
@@ -269,55 +269,63 @@ namespace APUWebBot
 
             var timetableStreams = new List<Stream>();
 
-            //it loads the html document from the given link
-            HtmlWeb web = new HtmlWeb();
-            var document = web.Load(timetablePageUri);
-
-            //this defines the xlsx links in the html document, the ancestor of the element using the defined XPath
-            var pageBody = document.DocumentNode.SelectSingleNode(xpath);
-
-            //follow the sibling of the current node div with the given class
-            foreach (var a in pageBody.SelectNodes("./ul/li/a"))
+            try
             {
-                //where the xlsx file is
-                string xlsxUri = "http://en.apu.ac.jp" + a.Attributes["href"].Value;
+                //it loads the html document from the given link
+                HtmlWeb web = new HtmlWeb();
+                var document = web.Load(timetablePageUri);
+            
 
-                //download all the xlsx files in the Course Timetable page
-                /*
-                using (var client = new WebClient())
+                //this defines the xlsx links in the html document, the ancestor of the element using the defined XPath
+                var pageBody = document.DocumentNode.SelectSingleNode(xpath);
+
+                //follow the sibling of the current node div with the given class
+                foreach (var a in pageBody.SelectNodes("./ul/li/a"))
                 {
-                    client.DownloadFile(xlsxUri, downloadPath + a.InnerText + ".xlsx");
+                    //where the xlsx file is
+                    string xlsxDownloadUri = "http://en.apu.ac.jp" + a.Attributes["href"].Value;
+
+                    //download all the xlsx files in the Course Timetable page
+                    /*
+                    using (var client = new WebClient())
+                    {
+                        client.DownloadFile(xlsxUri, downloadPath + a.InnerText + ".xlsx");
+                    }
+                    */
+                    //create a http request and response
+                    var req = WebRequest.Create(xlsxDownloadUri);
+                    var response = req.GetResponse();
+
+                    //get the web response into stream
+                    Stream stream = response.GetResponseStream();
+
+                    timetableStreams.Add(stream);
+                    //timetablePaths.Add(downloadPath + a.InnerText + ".xlsx");
+                    //downloadedTimetables.Add(xlsxUri);
                 }
-                */
 
-                var req = WebRequest.Create(xlsxUri);
-                var response = req.GetResponse();
-
-                Stream stream = response.GetResponseStream();
-
-                timetableStreams.Add(stream);
-                //timetablePaths.Add(downloadPath + a.InnerText + ".xlsx");
-                //downloadedTimetables.Add(xlsxUri);
-
+                //return the list of byte streams for all the timetables
+                return timetableStreams;
 
             }
-
-            return timetableStreams;
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return null;
+            }
         }
 
         /// <summary>
-        /// Reads the raw text cells in the given xlsx file.
+        /// Reads the raw text cells in the given xlsx file from a stream
         /// </summary>
         /// <returns>The string list of raw xlsx cells</returns>
-        /// <param name="xlsxPath">File path.</param>
-        public static List<string> ReadRawXlsxFile(Stream xlsxPath)
+        /// <param name="xlsxStream">File path.</param>
+        public static List<string> ReadRawXlsxFileStream(Stream xlsxStream)
         {
             var rawStringData = new List<string>();
 
-            //convert the file into bitstream
-            //byte[] bin = File.ReadAllBytes(xlsxPath);
-
-            byte[] bin = ReadFully(xlsxPath);
+            //convert the given stream into a byte array
+            byte[] bin = ReadFully(xlsxStream);
 
             //create a new Excel package in a memorystream
             using (MemoryStream stream = new MemoryStream(bin))
@@ -327,17 +335,19 @@ namespace APUWebBot
                 foreach (ExcelWorksheet worksheet in excelPackage.Workbook.Worksheets)
                 {
                     //loop all rows
-                    for (int i = worksheet.Dimension.Start.Row; i <= worksheet.Dimension.End.Row; i++)
+                    for (int y = worksheet.Dimension.Start.Row; y <= worksheet.Dimension.End.Row; y++)
                     {
+                        rawStringData.Add("[Start]");
                         //loop all columns in a row
-                        for (int j = worksheet.Dimension.Start.Column; j <= worksheet.Dimension.End.Column; j++)
+                        for (int x = worksheet.Dimension.Start.Column; x <= worksheet.Dimension.End.Column; x++)
                         {
                             //add the cell data to the List
-                            if (worksheet.Cells[i, j].Value != null)
+                            if (worksheet.Cells[y, x].Value != null)
                             {
-                                rawStringData.Add(worksheet.Cells[i, j].Value.ToString());
+                                rawStringData.Add(worksheet.Cells[y, x].Value.ToString());
                             }
                         }
+                        rawStringData.Add("[End]");
                     }
                 }
             }
@@ -345,13 +355,18 @@ namespace APUWebBot
             return rawStringData;
         }
 
-        public static List<LectureItem> ReadTimetables(string timetableLoc)
+        public static List<LectureItem> GetLectureList(List<string> rawCells)
         {
             var lectures = new List<LectureItem>();
 
             return lectures;
         }
 
+        /// <summary>
+        /// Read the input Stream and convert that into a Byte array
+        /// </summary>
+        /// <returns>Byte array of Stream</returns>
+        /// <param name="input">Input.</param>
         public static byte[] ReadFully(Stream input)
         {
             byte[] buffer = new byte[16 * 1024];

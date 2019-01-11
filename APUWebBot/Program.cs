@@ -40,13 +40,15 @@ namespace APUWebBot
 
         static void ReadTimeTableDemo()
         {
+            //this only holds all the cell texts in the xlsx file
             var lecutreList = new List<string>();
             try
             {
+                //loop through the links that has the xlsx file
                 foreach (var i in ApuBot.GetTimetableAsMemStream(ApuBot.GetLinksFromMainPage("03")[0]))
                 {
-
-                    foreach (var n in ApuBot.ReadRawXlsxFile(i))
+                    //loop through all the raw strings in the xlsx cell
+                    foreach (var n in ApuBot.ReadRawXlsxFileStream(i))
                     {
                         lecutreList.Add(n);
                     }
