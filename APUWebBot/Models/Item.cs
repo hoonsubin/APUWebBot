@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace APUWebBot.Models
 {
-
+    //this item class shows the calendar items
     public class Item: IEquatable<Item>
     {
         public int Id { get; set; }

@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Net;
 using APUWebBot.Models;
+using OfficeOpenXml;
+using System.IO;
 
 //don't forget to change the namespace and the using libraries when implementing this to the app
 namespace APUWebBot
@@ -20,6 +22,8 @@ namespace APUWebBot
 
         //link for english academic calendar
         const string enAcademicCalendarUri = "http://en.apu.ac.jp/academic/top/curriculum_17.html/?c=17";
+
+        const string syllabusSearchUri = "https://portal2.apu.ac.jp/campusp/slbssbdr.do?value%28risyunen%29=2018&value%28semekikn%29=2&value%28kougicd%29=";
 
         /// <summary>
         /// Get all the links found in the Academic Office menu as a string
@@ -253,15 +257,19 @@ namespace APUWebBot
             return items;
         }
 
-        public static void ReadTimeTableOnline(string timetableUri)
+        /// <summary>
+        /// Downloads the timetables from the academic office website
+        /// </summary>
+        /// <param name="timetablePageUri">Timetable page URI</param>
+        public static List<string> DownloadTimeTablesOnline(string timetablePageUri, string downloadPath = "")
         {
             string xpath = $"//div[contains(@class, 'entry')]";
 
-            var timetableLinks = new List<string>();
+            var timetablePaths = new List<string>();
 
             //it loads the html document from the given link
             HtmlWeb web = new HtmlWeb();
-            var document = web.Load(timetableUri);
+            var document = web.Load(timetablePageUri);
 
             //this defines the xlsx links in the html document, the ancestor of the element using the defined XPath
             var pageBody = document.DocumentNode.SelectSingleNode(xpath);
@@ -269,19 +277,66 @@ namespace APUWebBot
             //follow the sibling of the current node div with the given class
             foreach (var a in pageBody.SelectNodes("./ul/li/a"))
             {
+                //where the xlsx file is
+                string xlsxUri = "http://en.apu.ac.jp" + a.Attributes["href"].Value;
 
+                //download all the xlsx files in the Course Timetable page
                 using (var client = new WebClient())
                 {
-                    client.DownloadFile("http://en.apu.ac.jp" + a.Attributes["href"].Value, a.InnerText + ".xlsx");
+                    client.DownloadFile(xlsxUri, downloadPath + a.InnerText + ".xlsx");
                 }
-                Console.WriteLine("Downloaded " + a.InnerText);
+
+                timetablePaths.Add(downloadPath + a.InnerText + ".xlsx");
+                //downloadedTimetables.Add(xlsxUri);
+
             }
 
-
-
-
+            return timetablePaths;
         }
 
+
+        public static void ReadXlsxFile(string xlsxPath)
+        {
+            var lectures = new List<string>();
+
+            byte[] bin = File.ReadAllBytes(xlsxPath);
+
+            //create a new Excel package in a memorystream
+            using (MemoryStream stream = new MemoryStream(bin))
+            using (ExcelPackage excelPackage = new ExcelPackage(stream))
+            {
+                //loop all worksheets
+                foreach (ExcelWorksheet worksheet in excelPackage.Workbook.Worksheets)
+                {
+                    //loop all rows
+                    for (int i = worksheet.Dimension.Start.Row; i <= worksheet.Dimension.End.Row; i++)
+                    {
+                        //loop all columns in a row
+                        for (int j = worksheet.Dimension.Start.Column; j <=
+                       worksheet.Dimension.End.Column; j++)
+                        {
+                            //add the cell data to the List
+                            if (worksheet.Cells[i, j].Value != null)
+                            {
+                                lectures.Add(worksheet.Cells[i, j].Value.ToString());
+                            }
+                        }
+                    }
+                }
+            }
+
+            foreach (var i in lectures)
+            {
+                Console.WriteLine(i);
+            }
+        }
+
+        public static List<LectureItem> ReadTimetables(string timetableLoc)
+        {
+            var lectures = new List<LectureItem>();
+
+            return lectures;
+        }
 
     }
 }

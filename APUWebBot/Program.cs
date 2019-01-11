@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using System.IO;
+using OfficeOpenXml;
 
 namespace APUWebBot
 {
@@ -39,8 +40,18 @@ namespace APUWebBot
 
         static void ReadTimeTableDemo()
         {
-            //Console.WriteLine();
-            ApuBot.ReadTimeTableOnline(ApuBot.GetLinksFromMainPage("03")[0]);
+
+            try
+            {
+                ApuBot.ReadXlsxFile("18FATimetable_1204_17curriculum.xlsx");
+
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+
 
         }
 
