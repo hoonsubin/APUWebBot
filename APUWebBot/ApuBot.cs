@@ -337,17 +337,27 @@ namespace APUWebBot
                     //loop all rows
                     for (int y = worksheet.Dimension.Start.Row; y <= worksheet.Dimension.End.Row; y++)
                     {
-                        rawStringData.Add("[Start]");
+                        string row = "";
                         //loop all columns in a row
                         for (int x = worksheet.Dimension.Start.Column; x <= worksheet.Dimension.End.Column; x++)
                         {
+
                             //add the cell data to the List
                             if (worksheet.Cells[y, x].Value != null)
                             {
-                                rawStringData.Add(worksheet.Cells[y, x].Value.ToString());
+                                //get rid of the line break
+                                string currentItem = worksheet.Cells[y, x].Value.ToString().Replace("\n", "");
+                                //rawStringData.Add(worksheet.Cells[y, x].Value.ToString());
+                                row += currentItem + delimiter;
                             }
+                            else
+                            {
+                                row += "Empty" + delimiter;
+                            }
+
                         }
-                        rawStringData.Add("[End]");
+                        row = row.Remove(row.Length - 1);
+                        rawStringData.Add(row);
                     }
                 }
             }
