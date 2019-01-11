@@ -349,7 +349,7 @@ namespace APUWebBot
                             else
                             {
                                 //add an empty column if there is no entry in the cell
-                                row += "Empty" + delimiter;
+                                row += "NA" + delimiter;
                             }
 
                         }
@@ -386,7 +386,10 @@ namespace APUWebBot
             }
         }
 
-
+        /// <summary>
+        /// Return the List of Lecture Items from the Academic Office website xlsx file
+        /// </summary>
+        /// <returns>Lecture Items List</returns>
         public static List<LectureItem> LecturesList()
         {
             var lectures = new List<LectureItem>();
@@ -401,7 +404,7 @@ namespace APUWebBot
                     var lectureArray = n.Split(delimiter);
 
                     //only add the items that has a proper subject id
-                    if (lectureArray[5] != "Empty" && lectureArray[5] != "講義CD/Subject CD")
+                    if (lectureArray[5] != "NA" && lectureArray[5] != "講義CD/Subject CD")
                     {
                         //split the semester and curriculum string into two
                         string[] semesterOrCurr = lectureArray[15].Split("(");

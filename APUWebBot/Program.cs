@@ -41,14 +41,9 @@ namespace APUWebBot
         static void ReadTimeTableDemo()
         {
             const string delimiter = "|";
-            //this only holds all the cell texts in the xlsx file
-            //var lecutreList = new List<string>();
-            var csv = new StringBuilder();
-            //string filePath = @"output-timetable.csv";
 
             try
             {
-
                 //loop through the links that has the xlsx file in the course timetable website
                 foreach (var i in ApuBot.LecturesList())
                 {
