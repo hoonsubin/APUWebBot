@@ -1,7 +1,7 @@
 using System;
 using System.Text;
 using System.IO;
-using OfficeOpenXml;
+using System.Collections.Generic;
 
 namespace APUWebBot
 {
@@ -40,10 +40,22 @@ namespace APUWebBot
 
         static void ReadTimeTableDemo()
         {
-
+            var lecutreList = new List<string>();
             try
             {
-                ApuBot.ReadXlsxFile("18FATimetable_1204_17curriculum.xlsx");
+                foreach (var i in ApuBot.GetTimetableAsMemStream(ApuBot.GetLinksFromMainPage("03")[0]))
+                {
+
+                    foreach (var n in ApuBot.ReadRawXlsxFile(i))
+                    {
+                        lecutreList.Add(n);
+                    }
+                }
+
+                foreach(var i in lecutreList)
+                {
+                    Console.WriteLine(i);
+                }
 
 
             }

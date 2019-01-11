@@ -261,11 +261,13 @@ namespace APUWebBot
         /// Downloads the timetables from the academic office website
         /// </summary>
         /// <param name="timetablePageUri">Timetable page URI</param>
-        public static List<string> DownloadTimeTablesOnline(string timetablePageUri, string downloadPath = "")
+        public static List<Stream> GetTimetableAsMemStream(string timetablePageUri, string downloadPath = "")
         {
             string xpath = $"//div[contains(@class, 'entry')]";
 
             var timetablePaths = new List<string>();
+
+            var timetableStreams = new List<Stream>();
 
             //it loads the html document from the given link
             HtmlWeb web = new HtmlWeb();
@@ -281,25 +283,41 @@ namespace APUWebBot
                 string xlsxUri = "http://en.apu.ac.jp" + a.Attributes["href"].Value;
 
                 //download all the xlsx files in the Course Timetable page
+                /*
                 using (var client = new WebClient())
                 {
                     client.DownloadFile(xlsxUri, downloadPath + a.InnerText + ".xlsx");
                 }
+                */
 
-                timetablePaths.Add(downloadPath + a.InnerText + ".xlsx");
+                var req = WebRequest.Create(xlsxUri);
+                var response = req.GetResponse();
+
+                Stream stream = response.GetResponseStream();
+
+                timetableStreams.Add(stream);
+                //timetablePaths.Add(downloadPath + a.InnerText + ".xlsx");
                 //downloadedTimetables.Add(xlsxUri);
+
 
             }
 
-            return timetablePaths;
+            return timetableStreams;
         }
 
-
-        public static void ReadXlsxFile(string xlsxPath)
+        /// <summary>
+        /// Reads the raw text cells in the given xlsx file.
+        /// </summary>
+        /// <returns>The string list of raw xlsx cells</returns>
+        /// <param name="xlsxPath">File path.</param>
+        public static List<string> ReadRawXlsxFile(Stream xlsxPath)
         {
-            var lectures = new List<string>();
+            var rawStringData = new List<string>();
 
-            byte[] bin = File.ReadAllBytes(xlsxPath);
+            //convert the file into bitstream
+            //byte[] bin = File.ReadAllBytes(xlsxPath);
+
+            byte[] bin = ReadFully(xlsxPath);
 
             //create a new Excel package in a memorystream
             using (MemoryStream stream = new MemoryStream(bin))
@@ -312,23 +330,19 @@ namespace APUWebBot
                     for (int i = worksheet.Dimension.Start.Row; i <= worksheet.Dimension.End.Row; i++)
                     {
                         //loop all columns in a row
-                        for (int j = worksheet.Dimension.Start.Column; j <=
-                       worksheet.Dimension.End.Column; j++)
+                        for (int j = worksheet.Dimension.Start.Column; j <= worksheet.Dimension.End.Column; j++)
                         {
                             //add the cell data to the List
                             if (worksheet.Cells[i, j].Value != null)
                             {
-                                lectures.Add(worksheet.Cells[i, j].Value.ToString());
+                                rawStringData.Add(worksheet.Cells[i, j].Value.ToString());
                             }
                         }
                     }
                 }
             }
 
-            foreach (var i in lectures)
-            {
-                Console.WriteLine(i);
-            }
+            return rawStringData;
         }
 
         public static List<LectureItem> ReadTimetables(string timetableLoc)
@@ -338,5 +352,18 @@ namespace APUWebBot
             return lectures;
         }
 
+        public static byte[] ReadFully(Stream input)
+        {
+            byte[] buffer = new byte[16 * 1024];
+            using (MemoryStream ms = new MemoryStream())
+            {
+                int read;
+                while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    ms.Write(buffer, 0, read);
+                }
+                return ms.ToArray();
+            }
+        }
     }
 }
