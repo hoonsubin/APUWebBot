@@ -2,14 +2,28 @@ using System;
 using System.Text;
 using System.IO;
 using System.Collections.Generic;
+using APUWebBot.Models;
 
 namespace APUWebBot
 {
     class Program
     {
+
         static void Main(string[] args)
         {
-            ReadTimeTableDemo();
+            //ReadTimeTableDemo();
+            while (true)
+            {
+                Console.WriteLine("Type a search term (type exit to terminate): ");
+                string query = Console.ReadLine();
+                if (query.ToLower().Contains("exit"))
+                {
+                    break;
+                }
+
+                SreachLectureDemo(query);
+            }
+
         }
 
         /// <summary>
@@ -20,12 +34,10 @@ namespace APUWebBot
             //initiate the CSV file which works like a database
             var csv = new StringBuilder();
 
-            const string delimiter = "|";
-
             foreach (var item in ApuBot.AcademicEventList())
             {
                 //combine all the properties in the object to a single line
-                string row = item.StartDateTime + delimiter + item.DayOfWeek + delimiter + item.EventName;
+                string row = item.StartDateTime + ApuBot.delimiter + item.DayOfWeek + ApuBot.delimiter + item.EventName;
 
                 Console.WriteLine(row);
 
@@ -38,9 +50,11 @@ namespace APUWebBot
             File.WriteAllText(filePath, csv.ToString());
         }
 
+        /// <summary>
+        /// This demo will show how the bot gets the lectures, puts them into a list, and prints them
+        /// </summary>
         static void ReadTimeTableDemo()
         {
-            const string delimiter = "|";
 
             try
             {
@@ -48,8 +62,10 @@ namespace APUWebBot
                 foreach (var i in ApuBot.LecturesList())
                 {
                     //csv.AppendLine(i);
-                    Console.WriteLine(i.Term + delimiter + i.DayOfWeek + delimiter + i.SubjectNameEN + delimiter + i.SubjectId + delimiter + i.Semester + delimiter + i.Curriculum);
+                    Console.WriteLine(i.Term + ApuBot.delimiter + i.DayOfWeek + ApuBot.delimiter + i.SubjectNameEN + ApuBot.delimiter + i.SubjectId + ApuBot.delimiter + i.Semester + ApuBot.delimiter + i.Curriculum);
                 }
+
+                Console.WriteLine("There are " + ApuBot.LecturesList().Count + " items in the list");
 
                 //ApuBot.DebugLectureItem();
             }
@@ -57,9 +73,43 @@ namespace APUWebBot
             {
                 Console.WriteLine(ex);
             }
+        }
 
+        static void SreachLectureDemo(string query)
+        {
+            var database = ApuBot.LecturesList();
+
+            var searchResults = new List<LectureItem>();
+
+            Console.WriteLine("Searching...");
+
+            foreach(var i in database)
+            {
+                foreach(var tag in i.SearchTags)
+                {
+                    if (tag.Contains(query.ToLower()))
+                    {
+                        searchResults.Add(i);
+                    }
+                }
+            }
+
+            if (searchResults.Count > 0)
+            {
+                foreach(var res in searchResults)
+                {
+                    Console.WriteLine(res.SubjectNameEN);
+                }
+                Console.WriteLine("Found " + searchResults.Count + " items");
+                Console.WriteLine("============================");
+            }
+            else
+            {
+                Console.WriteLine("No results found");
+            }
 
         }
+
 
     }
 }

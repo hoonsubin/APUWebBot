@@ -18,7 +18,7 @@ namespace APUWebBot
     {
 
         //the delimiter for dividing the cells
-        const char delimiter = '|';
+        public const char delimiter = '|';
 
         //link for english academic calendar
         const string enAcademicCalendarUri = "http://en.apu.ac.jp/academic/top/curriculum_17.html/?c=17";

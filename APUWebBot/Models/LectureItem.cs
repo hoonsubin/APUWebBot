@@ -47,9 +47,38 @@ namespace APUWebBot.Models
         //what semester the lecture is (ex: 2018 Fall)
         public string Semester { get; set; }
 
-        //the tags are used for searching, and will be dynamically generated
-        public List<string> Tags { get; set; }
-
         public string Curriculum { get; set; }
+
+        //the tags are used for searching, and will be dynamically generated
+        public List<string> SearchTags
+        {
+            get
+            {
+                var tags = new List<string>
+                {
+                    Term.ToLower(),
+                    //DateTime.ParseExact(DayOfWeek, "ddd", null).ToString().ToLower(),
+                    DayOfWeek.ToLower(),
+                    Period.ToLower(),
+                    Classroom.ToLower(),
+                    BuildingFloor.ToLower(),
+                    SubjectId.ToLower(),
+                    SubjectNameJP,
+                    SubjectNameEN.ToLower(),
+                    InstructorJP,
+                    InstructorEN.ToLower(),
+                    Language.ToLower(),
+                    Grade,
+                    Field.ToLower(),
+                    APS.ToLower(),
+                    APM.ToLower(),
+                    Semester.ToLower(),
+                    Curriculum.ToLower()
+                };
+
+
+                return tags;
+            }
+        }
     }
 }
