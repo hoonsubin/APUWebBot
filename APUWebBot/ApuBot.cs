@@ -364,35 +364,13 @@ namespace APUWebBot
             return rawStringData;
         }
 
-        public static void DebugLectureItem()
-        {
-            //loop through the links that has the xlsx file
-            foreach (var i in GetTimetableAsMemStream(GetLinksFromMainPage("03")[0]))
-            {
-                foreach (var n in ReadRawXlsxFileStream(i))
-                {
-                    //split the string with the delimiter, making it to an array
-                    var lectureArray = n.Split(delimiter);
-
-                    Console.WriteLine("The array length is: " + lectureArray.Length);
-
-                    for (int e = 0; e < lectureArray.Length; e++)
-                    {
-                        Console.WriteLine("[" + lectureArray[e] + "]" + " in index " + e);
-                    }
-
-                    Console.WriteLine("========================");
-                }
-            }
-        }
-
         /// <summary>
         /// Return the List of Lecture Items from the Academic Office website xlsx file
         /// </summary>
         /// <returns>Lecture Items List</returns>
-        public static List<LectureItem> LecturesList()
+        public static ObservableCollection<LectureItem> LecturesList()
         {
-            var lectures = new List<LectureItem>();
+            var lectures = new ObservableCollection<LectureItem>();
 
             //loop through the links that has the xlsx file
             foreach (var i in GetTimetableAsMemStream(GetLinksFromMainPage("03")[0]))

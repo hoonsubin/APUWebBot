@@ -57,7 +57,9 @@ namespace APUWebBot.Models
                 var tags = new List<string>
                 {
                     Term.ToLower(),
+                    //sessions have a different DayOfWeek value, so cannot use this
                     //DateTime.ParseExact(DayOfWeek, "ddd", null).ToString().ToLower(),
+
                     DayOfWeek.ToLower(),
                     Period.ToLower(),
                     Classroom.ToLower(),

@@ -2,6 +2,8 @@ using System;
 using System.Text;
 using System.IO;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using APUWebBot.Models;
 
 namespace APUWebBot
@@ -11,18 +13,7 @@ namespace APUWebBot
 
         static void Main(string[] args)
         {
-            //ReadTimeTableDemo();
-            while (true)
-            {
-                Console.WriteLine("Type a search term (type exit to terminate): ");
-                string query = Console.ReadLine();
-                if (query.ToLower().Contains("exit"))
-                {
-                    break;
-                }
-
-                SreachLectureDemo(query);
-            }
+            SreachLectureDemo();
 
         }
 
@@ -75,41 +66,70 @@ namespace APUWebBot
             }
         }
 
-        static void SreachLectureDemo(string query)
+        static void SreachLectureDemo()
         {
-            Console.WriteLine("Searching...");
+            Console.WriteLine("Starting up the database...");
+            //the list that the engine should look to
             var database = ApuBot.LecturesList();
 
-            var searchResults = new List<LectureItem>();
 
-            //loop through the database
-            foreach(var i in database)
+            while (true)
             {
-                //loop through the tags
-                foreach(var tag in i.SearchTags)
+                Console.WriteLine("Type a search term (type exit to terminate): ");
+                string query = Console.ReadLine();
+                if (query.ToLower().Contains("exit"))
                 {
-                    if (tag.Contains(query.ToLower()))
+                    break;
+                }
+
+                Console.WriteLine("Searching...");
+                var searchTime = System.Diagnostics.Stopwatch.StartNew();
+
+                //the results after the filtering
+                var searchResults = new List<LectureItem>();
+
+
+                var queryAsChar = query.ToCharArray();
+                //loop through the database
+                
+                foreach (var i in database)
+                {
+                    //loop through the tags of the item
+                    foreach (var tag in i.SearchTags)
                     {
-                        searchResults.Add(i);
+                        var tagAsArray = tag.ToCharArray();
+
+                        //prevent same results to be in the list
+                        if (!searchResults.Contains(i))
+                        {
+                            if (tag.Contains(query.ToLower()))
+                            {
+                                searchResults.Add(i);
+                            }
+                        }
+
+
                     }
                 }
-            }
 
-            //show the search results
-            if (searchResults.Count > 0)
-            {
-                foreach(var res in searchResults)
+                //show the search results
+                if (searchResults.Count > 0)
                 {
-                    Console.WriteLine(res.SubjectNameEN);
-                }
-                Console.WriteLine("Found " + searchResults.Count + " items");
-                Console.WriteLine("============================");
-            }
-            else
-            {
-                Console.WriteLine("No results found");
-            }
 
+                    foreach (var res in searchResults)
+                    {
+                        Console.WriteLine(res.SubjectNameEN);
+                    }
+                    searchTime.Stop();
+                    Console.WriteLine("Took " + searchTime.ElapsedMilliseconds.ToString() + " ms");
+                    Console.WriteLine("Found " + searchResults.Count + " items");
+                    Console.WriteLine("============================");
+                }
+                else
+                {
+                    Console.WriteLine("No results found");
+                }
+            }
         }
 
 
