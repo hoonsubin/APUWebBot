@@ -3,6 +3,7 @@ using System.Diagnostics;
 using HtmlAgilityPack;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Net;
 using APUWebBot.Models;
 using OfficeOpenXml;
@@ -212,12 +213,10 @@ namespace APUWebBot
                 acaEvent[4] = acaEvent[4] + "(" + acaEvent[5] + ")";
             }
 
-
             //make the final date time string with adding 
             string dateTime = joinedDate + delimiter + acaEvent[3] + delimiter + acaEvent[4];
 
             return dateTime;
-
         }
 
         /// <summary>
@@ -309,7 +308,7 @@ namespace APUWebBot
         }
 
         /// <summary>
-        /// Reads the raw text cells in the given xlsx file from a stream
+        /// Reads the raw text cells in xlsx from the memory stream
         /// </summary>
         /// <returns>The string list of raw xlsx cells</returns>
         /// <param name="xlsxStream">File path.</param>
@@ -327,6 +326,7 @@ namespace APUWebBot
                 //loop all worksheets
                 foreach (ExcelWorksheet worksheet in excelPackage.Workbook.Worksheets)
                 {
+                    //get the semester and curriculum of the xlsx file
                     string semesterAndCurriculum = worksheet.Cells[2, 1].Value.ToString();
 
                     //loop all rows
@@ -353,9 +353,9 @@ namespace APUWebBot
                             }
 
                         }
-                        //delte the final delimiter
+                        //add the semester and curriculum column in the end
                         row += semesterAndCurriculum;
-                        //row = row.Remove(row.Length - 1);
+                        //add the string to the list
                         rawStringData.Add(row);
                     }
                 }
@@ -389,32 +389,46 @@ namespace APUWebBot
                         semesterOrCurr[0] = semesterOrCurr[0].Replace("Timetable", "").Trim();
                         semesterOrCurr[1] = semesterOrCurr[1].Replace(")", "");
 
-                        //add the lecture item
+                        string buildingFloor = lectureArray[4];
+                        //change building format
+                        if (lectureArray[4] != "T.B.A.")
+                        {
+                            buildingFloor = lectureArray[4].Replace("-", " building ").Replace("Ⅱ", "II");
+                            buildingFloor = buildingFloor.Remove(buildingFloor.Length - 1, 1) + OrderedNumber(lectureArray[4].Remove(0, lectureArray[4].Length - 1)) + " floor";
+                        }
+
+
+                        //change day of week format
+                        string dayOfWeek = lectureArray[1].Contains("Session") ? "Session" : lectureArray[1].Replace(".", "").Remove(0, 2);
+
+                        //add the lecture item to the list
                         lectures.Add(new LectureItem
                         {
                             Term = lectureArray[0],
-                            DayOfWeek = lectureArray[1].Replace("/", "").Replace(".", ""),
-                            Period = lectureArray[2],
-                            Classroom = lectureArray[3],
-                            BuildingFloor = lectureArray[4],
+                            DayOfWeek = dayOfWeek,
+                            Period = lectureArray[2].Contains("T.B.A.") ? "T.B.A." : OrderedNumber(lectureArray[2].Normalize(System.Text.NormalizationForm.FormKC)) + " Period",
+                            Classroom = lectureArray[3].Replace("Ⅱ","II "),
+                            BuildingFloor = buildingFloor,
                             SubjectId = lectureArray[5],
                             SubjectNameJP = lectureArray[6],
                             SubjectNameEN = lectureArray[7],
                             InstructorJP = lectureArray[8],
                             InstructorEN = lectureArray[9],
                             Language = lectureArray[10],
-                            Grade = lectureArray[11].Remove(1, 2),
+                            Grade = OrderedNumber(lectureArray[11].Remove(1, 2)) + " Year",
                             Field = lectureArray[12],
                             APS = lectureArray[13],
                             APM = lectureArray[14],
-                            Semester = semesterOrCurr[0],
-                            Curriculum = semesterOrCurr[1]
-
+                            Semester = semesterOrCurr[0].Replace(" Semester", ""),
+                            Curriculum = semesterOrCurr[1].Remove(0, 4).Replace(" students", ""),
+                            
+                            
                         });
+
+
                     }
                 }
             }
-
             return lectures;
         }
 
@@ -435,6 +449,35 @@ namespace APUWebBot
                 }
                 return ms.ToArray();
             }
+        }
+
+        /// <summary>
+        /// Converts number strings into ordered form (ex: 1st, 2nd, 3rd...)
+        /// </summary>
+        /// <returns>Ordered number in string</returns>
+        /// <param name="inNumber">In number.</param>
+        public static string OrderedNumber(string inNumber)
+        {
+            string outNumber = "";
+            
+            switch (inNumber)
+            {
+                case "1":
+                    outNumber = "1st";
+                    break;
+                case "2":
+                    outNumber = "2nd";
+                    break;
+                case "3":
+                    outNumber = "3rd";
+                    break;
+                default:
+                    outNumber = inNumber + "th";
+                    break;
+            }
+
+            return outNumber;
+
         }
     }
 }

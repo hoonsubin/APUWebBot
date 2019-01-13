@@ -52,17 +52,15 @@ namespace APUWebBot.Models
         //the tags are used for searching, and will be dynamically generated
         public List<string> SearchTags
         {
-            get
-            {
-                var tags = new List<string>
+            get {
+                var outputList = new List<string>
                 {
-                    Term.ToLower(),
-                    //sessions have a different DayOfWeek value, so cannot use this
-                    //DateTime.ParseExact(DayOfWeek, "ddd", null).ToString().ToLower(),
-
+                    Term.Contains("Q") ? "quarter" : "semester",
                     DayOfWeek.ToLower(),
                     Period.ToLower(),
+                    Classroom.Replace("FII", "f2"),
                     Classroom.ToLower(),
+                    BuildingFloor.Replace("FII", "f2"),
                     BuildingFloor.ToLower(),
                     SubjectId.ToLower(),
                     SubjectNameJP,
@@ -70,16 +68,17 @@ namespace APUWebBot.Models
                     InstructorJP,
                     InstructorEN.ToLower(),
                     Language.ToLower(),
-                    Grade,
+                    Grade.ToLower(),
+                    Grade.Replace("Year", "grade"),
                     Field.ToLower(),
                     APS.ToLower(),
                     APM.ToLower(),
                     Semester.ToLower(),
-                    Curriculum.ToLower()
+                    Curriculum.ToLower(),
+                    Language.Contains("J") ? "japanese" : "english"
                 };
 
-
-                return tags;
+                return outputList;
             }
         }
     }
