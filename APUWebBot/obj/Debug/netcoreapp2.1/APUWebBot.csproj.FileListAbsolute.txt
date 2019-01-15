@@ -8,4 +8,3 @@
 /Users/hoonkim/Google Drive/Projects/APUWebBot/APUWebBot/obj/Debug/netcoreapp2.1/APUWebBot.AssemblyInfo.cs
 /Users/hoonkim/Google Drive/Projects/APUWebBot/APUWebBot/obj/Debug/netcoreapp2.1/APUWebBot.dll
 /Users/hoonkim/Google Drive/Projects/APUWebBot/APUWebBot/obj/Debug/netcoreapp2.1/APUWebBot.pdb
-/Users/hoonkim/Google Drive/Projects/APUWebBot/APUWebBot/obj/Debug/netcoreapp2.1/APUWebBot.csprojAssemblyReference.cache

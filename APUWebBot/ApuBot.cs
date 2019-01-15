@@ -3,7 +3,6 @@ using System.Diagnostics;
 using HtmlAgilityPack;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Globalization;
 using System.Net;
 using APUWebBot.Models;
 using OfficeOpenXml;
@@ -63,7 +62,6 @@ namespace APUWebBot
                     foreach (var li in ul.SelectNodes("./li/a"))
                     {
                         //get the value of href in the current node
-                        //todo: make the script that gets the root uri of the input uri
                         outLink = "http://" + currentUri.Host + li.Attributes["href"].Value;
 
                         //add the uri to the list that is going to get returned
@@ -325,7 +323,7 @@ namespace APUWebBot
             using (MemoryStream stream = new MemoryStream(bin))
             using (ExcelPackage excelPackage = new ExcelPackage(stream))
             {
-                //loop all worksheets
+                //loop all worksheets in memory stream
                 foreach (ExcelWorksheet worksheet in excelPackage.Workbook.Worksheets)
                 {
                     //get the semester and curriculum of the xlsx file
@@ -374,6 +372,12 @@ namespace APUWebBot
         {
             var lectures = new ObservableCollection<LectureItem>();
 
+            //get the uri that has the lecture timetables in xlsx file
+            var lectureTimetableuri = GetLinksFromMainPage("03")[0];
+
+            //get the xlsx file in the given link as a memory stream
+            var timetableMemoryStream = GetTimetableAsMemStream(lectureTimetableuri);
+
             Dictionary<string, string> dayOfWeekFull = new Dictionary<string, string>
             {
                 {"Mon", "Monday"},
@@ -384,7 +388,7 @@ namespace APUWebBot
             };
 
             //loop through the links that has the xlsx file
-            foreach (var i in GetTimetableAsMemStream(GetLinksFromMainPage("03")[0]))
+            foreach (var i in timetableMemoryStream)
             {
                 //loop through all the raw strings in the xlsx cell row by row
                 foreach (var n in ReadRawXlsxFileStream(i))
@@ -405,19 +409,22 @@ namespace APUWebBot
                         if (lectureArray[4] != "T.B.A.")
                         {
                             buildingFloor = lectureArray[4].Replace("-", " building ").Replace("Ⅱ", "II");
-                            buildingFloor = buildingFloor.Remove(buildingFloor.Length - 1, 1) + OrderedNumber(lectureArray[4].Remove(0, lectureArray[4].Length - 1)) + " floor";
+
+                            buildingFloor = buildingFloor.Remove(buildingFloor.Length - 1, 1) +
+                             OrderedNumber(lectureArray[4].Remove(0, lectureArray[4].Length - 1)) + " floor";
                         }
 
-
-                        //change day of week format
-                        string dayOfWeek = lectureArray[1].Contains("Session") ? "Session" : dayOfWeekFull[lectureArray[1].Replace(".", "").Remove(0, 2)];
+                        //change day of week format only if it's not "Session"
+                        string dayOfWeek = lectureArray[1].Contains("Session") ? "Session" : 
+                        dayOfWeekFull[lectureArray[1].Replace(".", "").Remove(0, 2)];
 
                         //add the lecture item to the list
                         lectures.Add(new LectureItem
                         {
                             Term = lectureArray[0],
                             DayOfWeek = dayOfWeek,
-                            Period = lectureArray[2].Contains("T.B.A.") ? "T.B.A." : OrderedNumber(lectureArray[2].Normalize(System.Text.NormalizationForm.FormKC)) + " Period",
+                            Period = lectureArray[2].Contains("T.B.A.") ? "T.B.A." :
+                             OrderedNumber(lectureArray[2].Normalize(System.Text.NormalizationForm.FormKC)) + " Period",
                             Classroom = lectureArray[3].Replace("Ⅱ","II "),
                             BuildingFloor = buildingFloor,
                             SubjectId = lectureArray[5],
@@ -433,8 +440,6 @@ namespace APUWebBot
                             Semester = semesterOrCurr[0].Replace(" Semester", ""),
                             Curriculum = semesterOrCurr[1].Remove(0, 4).Replace(" students", ""),
                         });
-
-
                     }
                 }
             }

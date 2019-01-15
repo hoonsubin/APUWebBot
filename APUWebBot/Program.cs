@@ -1,10 +1,7 @@
 using System;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.IO;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using APUWebBot.Models;
 
 namespace APUWebBot
@@ -16,8 +13,6 @@ namespace APUWebBot
         {
             SreachLectureDemo();
             //ReadTimeTableDemo();
-
-
         }
 
         /// <summary>
@@ -90,61 +85,64 @@ namespace APUWebBot
                 string query = Console.ReadLine();
                 if (query.ToLower().Contains("exit"))
                 {
+                    Console.WriteLine("Exiting...");
                     break;
                 }
-
-                Console.WriteLine("Searching...");
-                var searchTime = System.Diagnostics.Stopwatch.StartNew();
-
-                //the results after the filtering
-                var searchResults = new List<LectureItem>();
-
-                //the search algorithm starts here, currently it's just a simple linear filtering
-                //loop through the database
-                foreach (var i in database)
+                if (query != "")
                 {
-                    //loop through the tags of the item
-                    foreach (var tag in i.SearchTags)
+                    Console.WriteLine("Searching...");
+                    var searchTime = System.Diagnostics.Stopwatch.StartNew();
+
+                    //the results after the filtering
+                    var searchResults = new List<LectureItem>();
+
+                    //the search algorithm starts here, currently it's just a simple linear filtering
+                    //loop through the database
+                    foreach (var i in database)
                     {
-                        //prevent same results to be in the list
-                        if (!searchResults.Contains(i))
+                        //loop through the tags of the item
+                        foreach (var tag in i.SearchTags)
                         {
-                            //add the item to the list if it contains the word
-                            //this will be the main search algorithm
-                            if (tag.Contains(query.ToLower()))
+                            //prevent same results to be in the list
+                            if (!searchResults.Contains(i))
                             {
-                                searchResults.Add(i);
+                                //add the item to the list if it contains the word
+                                //this will be the main search algorithm
+                                if (tag.Contains(query.ToLower()))
+                                {
+                                    searchResults.Add(i);
+                                }
                             }
                         }
                     }
-                }
 
-                //show the search results
-                if (searchResults.Count > 0)
-                {
-
-                    foreach (var res in searchResults)
+                    //show the search results
+                    if (searchResults.Count > 0)
                     {
-                        //Console.WriteLine(res.SubjectNameEN + " subject ID: " + res.SubjectId);
-                        Console.WriteLine(res.Term + ApuBot.delimiter
-                        + res.DayOfWeek + ApuBot.delimiter
-                            + res.SubjectNameEN + ApuBot.delimiter
-                        + res.BuildingFloor + ApuBot.delimiter
-                            + res.Classroom + ApuBot.delimiter
-                        + res.Period + ApuBot.delimiter
-                            + res.InstructorEN + ApuBot.delimiter
-                        + res.Grade + ApuBot.delimiter);
+                        foreach (var res in searchResults)
+                        {
+                            //Console.WriteLine(res.SubjectNameEN + " subject ID: " + res.SubjectId);
+                            Console.WriteLine(res.Term + ApuBot.delimiter
+                            + res.DayOfWeek + ApuBot.delimiter
+                                + res.SubjectNameEN + ApuBot.delimiter
+                            + res.BuildingFloor + ApuBot.delimiter
+                                + res.Classroom + ApuBot.delimiter
+                            + res.Period + ApuBot.delimiter
+                                + res.InstructorEN + ApuBot.delimiter
+                            + res.Grade + ApuBot.delimiter);
+                        }
+                        searchTime.Stop();
+                        Console.WriteLine("Took " + searchTime.ElapsedMilliseconds.ToString() + " ms");
+                        Console.WriteLine("Found " + searchResults.Count + " items");
+                        Console.WriteLine("============================");
                     }
-                    searchTime.Stop();
-                    Console.WriteLine("Took " + searchTime.ElapsedMilliseconds.ToString() + " ms");
-                    Console.WriteLine("Found " + searchResults.Count + " items");
-                    Console.WriteLine("============================");
+                    else
+                    {
+                        Console.WriteLine("No results found");
+                        Console.WriteLine("============================");
+                    }
                 }
-                else
-                {
-                    Console.WriteLine("No results found");
-                    Console.WriteLine("============================");
-                }
+
             }
         }
 
