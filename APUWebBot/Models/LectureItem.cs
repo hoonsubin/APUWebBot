@@ -55,7 +55,7 @@ namespace APUWebBot.Models
             get {
                 var outputList = new List<string>
                 {
-                    Term.Contains("Q") ? "quarter" : "semester",
+                    Term.Contains("Q") ? "quarter" : "semester" + " class",
                     DayOfWeek.ToLower(),
                     Period.ToLower(),
                     Classroom.Replace("FII", "f2"),

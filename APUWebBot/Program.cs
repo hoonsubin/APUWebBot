@@ -16,6 +16,8 @@ namespace APUWebBot
         {
             SreachLectureDemo();
             //ReadTimeTableDemo();
+
+
         }
 
         /// <summary>
@@ -127,14 +129,11 @@ namespace APUWebBot
                         Console.WriteLine(res.Term + ApuBot.delimiter
                         + res.DayOfWeek + ApuBot.delimiter
                             + res.SubjectNameEN + ApuBot.delimiter
-                        + res.SubjectId + ApuBot.delimiter
-                            + res.Semester + ApuBot.delimiter
-                        + res.Curriculum + ApuBot.delimiter
-                            + res.BuildingFloor + ApuBot.delimiter
-                        + res.Classroom + ApuBot.delimiter
-                            + res.Period + ApuBot.delimiter
-                        + res.InstructorEN + ApuBot.delimiter
-                            + res.Grade + ApuBot.delimiter);
+                        + res.BuildingFloor + ApuBot.delimiter
+                            + res.Classroom + ApuBot.delimiter
+                        + res.Period + ApuBot.delimiter
+                            + res.InstructorEN + ApuBot.delimiter
+                        + res.Grade + ApuBot.delimiter);
                     }
                     searchTime.Stop();
                     Console.WriteLine("Took " + searchTime.ElapsedMilliseconds.ToString() + " ms");

@@ -51,6 +51,7 @@ namespace APUWebBot
                 //it loads the html document from the given link
                 HtmlWeb web = new HtmlWeb();
                 var document = web.Load(uri);
+                var currentUri = new Uri(uri);
 
                 //this defines the tables in the html document, the ancestor of the element using the defined XPath
                 var pageBody = document.DocumentNode.SelectSingleNode(xpath);
@@ -62,7 +63,8 @@ namespace APUWebBot
                     foreach (var li in ul.SelectNodes("./li/a"))
                     {
                         //get the value of href in the current node
-                        outLink = "http://en.apu.ac.jp" + li.Attributes["href"].Value;
+                        //todo: make the script that gets the root uri of the input uri
+                        outLink = "http://" + currentUri.Host + li.Attributes["href"].Value;
 
                         //add the uri to the list that is going to get returned
                         uriList.Add(outLink);
@@ -273,7 +275,7 @@ namespace APUWebBot
                 //it loads the html document from the given link
                 HtmlWeb web = new HtmlWeb();
                 var document = web.Load(timetablePageUri);
-            
+                var currentUri = new Uri(timetablePageUri);
 
                 //this defines the xlsx links in the html document, the ancestor of the element using the defined XPath
                 var pageBody = document.DocumentNode.SelectSingleNode(xpath);
@@ -282,7 +284,7 @@ namespace APUWebBot
                 foreach (var a in pageBody.SelectNodes("./ul/li/a"))
                 {
                     //where the xlsx file is
-                    string xlsxDownloadUri = "http://en.apu.ac.jp" + a.Attributes["href"].Value;
+                    string xlsxDownloadUri = "http://" + currentUri.Host + a.Attributes["href"].Value;
 
                     //create a http request and response
                     var req = WebRequest.Create(xlsxDownloadUri);
@@ -372,6 +374,15 @@ namespace APUWebBot
         {
             var lectures = new ObservableCollection<LectureItem>();
 
+            Dictionary<string, string> dayOfWeekFull = new Dictionary<string, string>
+            {
+                {"Mon", "Monday"},
+                {"Tue", "Tuesday"},
+                {"Wed", "Wednesday"},
+                {"Thu", "Thursday"},
+                {"Fri", "Friday"}
+            };
+
             //loop through the links that has the xlsx file
             foreach (var i in GetTimetableAsMemStream(GetLinksFromMainPage("03")[0]))
             {
@@ -399,7 +410,7 @@ namespace APUWebBot
 
 
                         //change day of week format
-                        string dayOfWeek = lectureArray[1].Contains("Session") ? "Session" : lectureArray[1].Replace(".", "").Remove(0, 2);
+                        string dayOfWeek = lectureArray[1].Contains("Session") ? "Session" : dayOfWeekFull[lectureArray[1].Replace(".", "").Remove(0, 2)];
 
                         //add the lecture item to the list
                         lectures.Add(new LectureItem
@@ -421,8 +432,6 @@ namespace APUWebBot
                             APM = lectureArray[14],
                             Semester = semesterOrCurr[0].Replace(" Semester", ""),
                             Curriculum = semesterOrCurr[1].Remove(0, 4).Replace(" students", ""),
-                            
-                            
                         });
 
 
@@ -475,7 +484,6 @@ namespace APUWebBot
                     outNumber = inNumber + "th";
                     break;
             }
-
             return outNumber;
 
         }
