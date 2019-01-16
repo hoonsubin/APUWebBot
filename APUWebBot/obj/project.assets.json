@@ -6133,11 +6133,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/hoonkim/Google Drive/Projects/APUWebBot/APUWebBot/APUWebBot.csproj",
+      "projectUniqueName": "/Users/hoonkim/Documents/Projects/APUWebBot/APUWebBot/APUWebBot.csproj",
       "projectName": "APUWebBot",
-      "projectPath": "/Users/hoonkim/Google Drive/Projects/APUWebBot/APUWebBot/APUWebBot.csproj",
+      "projectPath": "/Users/hoonkim/Documents/Projects/APUWebBot/APUWebBot/APUWebBot.csproj",
       "packagesPath": "/Users/hoonkim/.nuget/packages/",
-      "outputPath": "/Users/hoonkim/Google Drive/Projects/APUWebBot/APUWebBot/obj",
+      "outputPath": "/Users/hoonkim/Documents/Projects/APUWebBot/APUWebBot/obj",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "/usr/local/share/dotnet/sdk/NuGetFallbackFolder"

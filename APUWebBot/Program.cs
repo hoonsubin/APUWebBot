@@ -125,7 +125,7 @@ namespace APUWebBot
                             Console.WriteLine(res.Term + ApuBot.delimiter
                             + res.DayOfWeek + ApuBot.delimiter
                                 + res.SubjectNameEN + ApuBot.delimiter
-                            + res.BuildingFloor + ApuBot.delimiter
+                            + res.StartTime + " - " + res.EndTime + ApuBot.delimiter
                                 + res.Classroom + ApuBot.delimiter
                             + res.Period + ApuBot.delimiter
                                 + res.InstructorEN + ApuBot.delimiter

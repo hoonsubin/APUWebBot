@@ -49,6 +49,17 @@ namespace APUWebBot.Models
 
         public string Curriculum { get; set; }
 
+        public string StartTime { get; set; }
+
+        public string EndTime
+        { 
+            get
+            {
+                //return the StartTime value, but added 1 hour and 35 minutes to it
+                return StartTime.Contains("T.B.A.") ? "T.B.A." : DateTime.ParseExact(StartTime, "HH:mm", null).AddHours(1).AddMinutes(35).ToString("HH:mm");
+            }
+        }
+
         //the tags are used for searching, and will be dynamically generated
         public List<string> SearchTags
         {

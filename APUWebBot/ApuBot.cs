@@ -378,13 +378,24 @@ namespace APUWebBot
             //get the xlsx file in the given link as a memory stream
             var timetableMemoryStream = GetTimetableAsMemStream(lectureTimetableuri);
 
-            Dictionary<string, string> dayOfWeekFull = new Dictionary<string, string>
+            var dayOfWeekFull = new Dictionary<string, string>
             {
                 {"Mon", "Monday"},
                 {"Tue", "Tuesday"},
                 {"Wed", "Wednesday"},
                 {"Thu", "Thursday"},
                 {"Fri", "Friday"}
+            };
+
+            var periodStartTime = new Dictionary<string, string>
+            {
+                {"1st Period", "08:45"},
+                {"2nd Period", "10:35"},
+                {"3rd Period", "12:25"},
+                {"4th Period", "14:15"},
+                {"5th Period", "16:05"},
+                {"6th Period", "17:55"},
+                {"T.B.A.", "T.B.A."}
             };
 
             //loop through the links that has the xlsx file
@@ -418,13 +429,15 @@ namespace APUWebBot
                         string dayOfWeek = lectureArray[1].Contains("Session") ? "Session" : 
                         dayOfWeekFull[lectureArray[1].Replace(".", "").Remove(0, 2)];
 
+                        string classPeriod = lectureArray[2].Contains("T.B.A.") ? "T.B.A." :
+                             OrderedNumber(lectureArray[2].Normalize(System.Text.NormalizationForm.FormKC)) + " Period";
+
                         //add the lecture item to the list
                         lectures.Add(new LectureItem
                         {
                             Term = lectureArray[0],
                             DayOfWeek = dayOfWeek,
-                            Period = lectureArray[2].Contains("T.B.A.") ? "T.B.A." :
-                             OrderedNumber(lectureArray[2].Normalize(System.Text.NormalizationForm.FormKC)) + " Period",
+                            Period = classPeriod,
                             Classroom = lectureArray[3].Replace("Ⅱ","II "),
                             BuildingFloor = buildingFloor,
                             SubjectId = lectureArray[5],
@@ -439,6 +452,7 @@ namespace APUWebBot
                             APM = lectureArray[14],
                             Semester = semesterOrCurr[0].Replace(" Semester", ""),
                             Curriculum = semesterOrCurr[1].Remove(0, 4).Replace(" students", ""),
+                            StartTime = periodStartTime[classPeriod]
                         });
                     }
                 }
