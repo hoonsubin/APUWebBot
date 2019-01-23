@@ -262,6 +262,7 @@ namespace APUWebBot
         /// <param name="timetablePageUri">Timetable page URI</param>
         public static List<Stream> GetTimetableAsMemStream(string timetablePageUri)
         {
+            //xpath for finding the div element with the class entry
             string xpath = $"//div[contains(@class, 'entry')]";
 
             var timetablePaths = new List<string>();
@@ -365,7 +366,7 @@ namespace APUWebBot
         }
 
         /// <summary>
-        /// Return the List of Lecture Items from the Academic Office website xlsx file
+        /// Return the List of Lecture Items from the Academic Office website xlsx file. This is where the cleanup of the streamed data happends
         /// </summary>
         /// <returns>Lecture Items List</returns>
         public static ObservableCollection<LectureItem> LecturesList()
@@ -411,7 +412,7 @@ namespace APUWebBot
                     if (lectureArray[5] != "NA" && lectureArray[5] != "講義CD/Subject CD")
                     {
                         //split the semester and curriculum string into two
-                        string[] semesterOrCurr = lectureArray[15].Split("(");
+                        string[] semesterOrCurr = lectureArray[15].Split('(');
                         semesterOrCurr[0] = semesterOrCurr[0].Replace("Timetable", "").Trim();
                         semesterOrCurr[1] = semesterOrCurr[1].Replace(")", "");
 
@@ -431,6 +432,10 @@ namespace APUWebBot
 
                         string classPeriod = lectureArray[2].Contains("T.B.A.") ? "T.B.A." :
                              OrderedNumber(lectureArray[2].Normalize(System.Text.NormalizationForm.FormKC)) + " Period";
+
+                        //todo: organize a single lecture with multiple periods and day of weeks
+                        //warning: a single lecture may have multiple periods in one day, and the same periods with multiple days
+                        //ex: Lecture A, 2st period, Monday, Thursday/Lecture B, 4th period, 5th period, Tuesday
 
                         //add the lecture item to the list
                         lectures.Add(new LectureItem
@@ -457,6 +462,7 @@ namespace APUWebBot
                     }
                 }
             }
+
             return lectures;
         }
 

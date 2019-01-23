@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace APUWebBot.Models
 {
     //this lecture item class holds all the lecture information
-    public class LectureItem
+    public class LectureItem : IEquatable<LectureItem>
     {
         public LectureItem()
         {
@@ -92,5 +92,17 @@ namespace APUWebBot.Models
                 return outputList;
             }
         }
+
+        //check if the subject name, lecture semester and curriculum is the same
+        public bool Equals(LectureItem other)
+        {
+            if (other is null)
+                return false;
+            return SubjectNameEN == other.SubjectNameEN && Semester == other.Semester && Curriculum == other.Curriculum;
+        }
+
+        public override bool Equals(object obj) => Equals(obj as LectureItem);
+
+        public override int GetHashCode() => (SubjectNameEN, Semester, Curriculum).GetHashCode();
     }
 }

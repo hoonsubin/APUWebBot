@@ -11,8 +11,8 @@ namespace APUWebBot
 
         static void Main(string[] args)
         {
-            SreachLectureDemo();
-            //ReadTimeTableDemo();
+            GetLecturesDemo();
+
         }
 
         /// <summary>
@@ -42,27 +42,37 @@ namespace APUWebBot
         /// <summary>
         /// This demo will show how the bot gets the lectures, puts them into a list, and prints them
         /// </summary>
-        static void ReadTimeTableDemo()
+        static void GetLecturesDemo()
         {
+            //initiate the CSV file which works like a database
+            var csv = new StringBuilder();
 
             try
             {
                 //loop through the links that has the xlsx file in the course timetable website
                 foreach (var i in ApuBot.LecturesList())
                 {
-
-                    Console.WriteLine(i.Term + ApuBot.delimiter 
-                    + i.DayOfWeek + ApuBot.delimiter 
-                        + i.SubjectNameEN + ApuBot.delimiter 
-                    + i.SubjectId + ApuBot.delimiter 
-                        + i.Semester + ApuBot.delimiter 
+                    string row = i.Term + ApuBot.delimiter
+                    + i.DayOfWeek + ApuBot.delimiter
+                        + i.SubjectNameEN + ApuBot.delimiter
+                    + i.SubjectId + ApuBot.delimiter
+                        + i.Semester + ApuBot.delimiter
                     + i.Curriculum + ApuBot.delimiter
                         + i.BuildingFloor + ApuBot.delimiter
                     + i.Classroom + ApuBot.delimiter
                         + i.Period + ApuBot.delimiter
                     + i.InstructorEN + ApuBot.delimiter
-                        + i.Grade + ApuBot.delimiter);
+                        + i.Grade + ApuBot.delimiter;
+
+                    Console.WriteLine(row);
+
+                    csv.AppendLine(row);
                 }
+                //file path for the output
+                string filePath = @"output-lectures.csv";
+
+                //output the csv file
+                File.WriteAllText(filePath, csv.ToString());
 
                 Console.WriteLine("There are " + ApuBot.LecturesList().Count + " items in the list");
                 
@@ -81,6 +91,7 @@ namespace APUWebBot
 
             while (true)
             {
+                Console.WriteLine("There are " + database.Count + " lectures");
                 Console.WriteLine("Type a search term (type exit to terminate): ");
                 string query = Console.ReadLine();
                 if (query.ToLower().Contains("exit"))
