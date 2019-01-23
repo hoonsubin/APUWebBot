@@ -7,6 +7,7 @@ using System.Net;
 using APUWebBot.Models;
 using OfficeOpenXml;
 using System.IO;
+using System.Linq;
 
 //don't forget to change the namespace and the using libraries when implementing this to the app
 namespace APUWebBot
@@ -257,6 +258,58 @@ namespace APUWebBot
         }
 
         /// <summary>
+        /// Check if the given string of date matches the last update date online
+        /// </summary>
+        /// <returns><c>true</c>, if lecture update matches one online, <c>false</c> otherwise.</returns>
+        /// <param name="dbLastUpdate">Db last update.</param>
+        public static bool IsDbLecturesUpdate(string dbLastUpdate)
+        {
+            //check if the database date is the same as the online date
+            //date format in yyyy/MM/dd
+            if (dbLastUpdate == GetOnlineTimetableLastDate())
+            {
+                return true;
+            }
+            //return false if the online and offline date does not match
+            return false;
+        }
+
+        /// <summary>
+        /// Gets the online lecture timetable's last updated date
+        /// </summary>
+        /// <returns>The online timetable last date.</returns>
+        public static string GetOnlineTimetableLastDate()
+        {
+            string timetablePageUri = GetLinksFromMainPage("03")[0];
+
+            string lastDate = "";
+
+            string xpath = $"//div[contains(@class, 'entry')]";
+
+            try
+            {
+                //load the html document from the given link
+                HtmlWeb web = new HtmlWeb();
+                var document = web.Load(timetablePageUri);
+                var currentUri = new Uri(timetablePageUri);
+                //define the xlsx links in the html document, the ancestor of the element using the defined XPath
+                var pageBody = document.DocumentNode.SelectSingleNode(xpath);
+
+                string[] links = pageBody.SelectNodes("./ul/li")[0].InnerText.Split(" ");
+
+                lastDate = pageBody.SelectNodes("./ul/li")[0].InnerText;
+
+                //return lastDate;
+
+                return links[links.Length - 1].Replace(")", "");
+            }
+            catch(Exception)
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Downloads the timetables from the academic office website
         /// </summary>
         /// <param name="timetablePageUri">Timetable page URI</param>
@@ -271,12 +324,12 @@ namespace APUWebBot
 
             try
             {
-                //it loads the html document from the given link
+                //load the html document from the given link
                 HtmlWeb web = new HtmlWeb();
                 var document = web.Load(timetablePageUri);
                 var currentUri = new Uri(timetablePageUri);
 
-                //this defines the xlsx links in the html document, the ancestor of the element using the defined XPath
+                //define the xlsx links in the html document, the ancestor of the element using the defined XPath
                 var pageBody = document.DocumentNode.SelectSingleNode(xpath);
 
                 //follow the sibling of the current node div with the given class
@@ -427,11 +480,11 @@ namespace APUWebBot
                         }
 
                         //change day of week format only if it's not "Session"
-                        string dayOfWeek = lectureArray[1].Contains("Session") ? "Session" : 
+                        string dayOfWeek = lectureArray[1].Contains("Session") ? "Session" :
                         dayOfWeekFull[lectureArray[1].Replace(".", "").Remove(0, 2)];
 
                         string classPeriod = lectureArray[2].Contains("T.B.A.") ? "T.B.A." :
-                             OrderedNumber(lectureArray[2].Normalize(System.Text.NormalizationForm.FormKC)) + " Period";
+                             OrderedNumber(lectureArray[2].Normalize(System.Text.NormalizationForm.FormKC)) + " Period" ;
 
                         //todo: organize a single lecture with multiple periods and day of weeks
                         //warning: a single lecture may have multiple periods in one day, and the same periods with multiple days
@@ -462,7 +515,6 @@ namespace APUWebBot
                     }
                 }
             }
-
             return lectures;
         }
 

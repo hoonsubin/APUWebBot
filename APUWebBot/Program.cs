@@ -11,8 +11,8 @@ namespace APUWebBot
 
         static void Main(string[] args)
         {
-            GetLecturesDemo();
-
+            //GetLecturesDemo();
+            SreachLectureDemo();
         }
 
         /// <summary>
@@ -47,10 +47,20 @@ namespace APUWebBot
             //initiate the CSV file which works like a database
             var csv = new StringBuilder();
 
+            var lectureList = new List<LectureItem>();
+
             try
             {
                 //loop through the links that has the xlsx file in the course timetable website
                 foreach (var i in ApuBot.LecturesList())
+                {
+                    if (!lectureList.Contains(i))
+                    {
+                        lectureList.Add(i);
+
+                    }
+                }
+                foreach (var i in lectureList)
                 {
                     string row = i.Term + ApuBot.delimiter
                     + i.DayOfWeek + ApuBot.delimiter
@@ -62,19 +72,20 @@ namespace APUWebBot
                     + i.Classroom + ApuBot.delimiter
                         + i.Period + ApuBot.delimiter
                     + i.InstructorEN + ApuBot.delimiter
-                        + i.Grade + ApuBot.delimiter;
+                        + i.Grade;
 
                     Console.WriteLine(row);
 
                     csv.AppendLine(row);
                 }
+
                 //file path for the output
                 string filePath = @"output-lectures.csv";
 
                 //output the csv file
                 File.WriteAllText(filePath, csv.ToString());
 
-                Console.WriteLine("There are " + ApuBot.LecturesList().Count + " items in the list");
+                Console.WriteLine("There are " + lectureList.Count + " items in the list");
                 
             }
             catch (Exception ex)
@@ -124,6 +135,10 @@ namespace APUWebBot
                                     searchResults.Add(i);
                                 }
                             }
+                            else
+                            {
+                                continue;
+                            }
                         }
                     }
 
@@ -140,7 +155,7 @@ namespace APUWebBot
                                 + res.Classroom + ApuBot.delimiter
                             + res.Period + ApuBot.delimiter
                                 + res.InstructorEN + ApuBot.delimiter
-                            + res.Grade + ApuBot.delimiter);
+                            + res.Grade);
                         }
                         searchTime.Stop();
                         Console.WriteLine("Took " + searchTime.ElapsedMilliseconds.ToString() + " ms");

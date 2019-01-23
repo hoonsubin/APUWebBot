@@ -98,6 +98,7 @@ namespace APUWebBot.Models
         {
             if (other is null)
                 return false;
+            //todo: find a way for the program to check for different periods on a single lecture
             return SubjectNameEN == other.SubjectNameEN && Semester == other.Semester && Curriculum == other.Curriculum;
         }
 
