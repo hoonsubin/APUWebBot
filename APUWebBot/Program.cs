@@ -11,8 +11,8 @@ namespace APUWebBot
 
         static void Main(string[] args)
         {
-            //GetLecturesDemo();
-            SreachLectureDemo();
+            GetLecturesDemo();
+            //SreachLectureDemo();
         }
 
         /// <summary>
@@ -54,23 +54,19 @@ namespace APUWebBot
                 //loop through the links that has the xlsx file in the course timetable website
                 foreach (var i in ApuBot.LecturesList())
                 {
-                    if (!lectureList.Contains(i))
-                    {
-                        lectureList.Add(i);
-
-                    }
+                    lectureList.Add(i);
                 }
                 foreach (var i in lectureList)
                 {
                     string row = i.Term + ApuBot.delimiter
                     + i.DayOfWeek + ApuBot.delimiter
-                        + i.SubjectNameEN + ApuBot.delimiter
-                    + i.SubjectId + ApuBot.delimiter
-                        + i.Semester + ApuBot.delimiter
-                    + i.Curriculum + ApuBot.delimiter
-                        + i.BuildingFloor + ApuBot.delimiter
-                    + i.Classroom + ApuBot.delimiter
                         + i.Period + ApuBot.delimiter
+                    + i.SubjectNameEN + ApuBot.delimiter
+                        + i.TimetableCol + " - " + i.TimetableRow + ApuBot.delimiter
+                    + i.Semester + ApuBot.delimiter
+                        + i.Curriculum + ApuBot.delimiter
+                    + i.BuildingFloor + ApuBot.delimiter
+                        + i.Classroom + ApuBot.delimiter
                     + i.InstructorEN + ApuBot.delimiter
                         + i.Grade;
 

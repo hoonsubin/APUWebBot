@@ -51,6 +51,39 @@ namespace APUWebBot.Models
 
         public string StartTime { get; set; }
 
+        public int TimetableCol {
+            get
+            {
+                //convert the DayOfWeek value to a number, missing value is 99
+                var dayOfWeekToInt = new Dictionary<string, int>
+                {
+                    {"Monday", 1},
+                    {"Tuesday", 2},
+                    {"Wednesday", 3},
+                    {"Thursday", 4},
+                    {"Friday", 5},
+                    {"Session", 99}
+                };
+
+                return dayOfWeekToInt[DayOfWeek];
+            }
+        }
+
+        public int TimetableRow {
+            get
+            {
+                //convert the first char of the Period attribute to int, missing value is 99
+                int periodVal = (int)char.GetNumericValue(Period[0]);
+
+                //the timetable row max number is 6, anything above 6 will be considered missing
+                if (periodVal == -1)
+                {
+                    return 99;
+                }
+                return periodVal;
+            }
+        }
+
         public string EndTime
         { 
             get
