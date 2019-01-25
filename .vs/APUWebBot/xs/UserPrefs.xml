@@ -1,9 +1,9 @@
 ﻿<Properties StartupConfiguration="{0A1EE019-A39E-4978-BEB7-83004717C6F8}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="APUWebBot/Models/LectureItem.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="APUWebBot/Program.cs">
     <Files>
-      <File FileName="APUWebBot/Program.cs" Line="97" Column="32" />
-      <File FileName="APUWebBot/Models/LectureItem.cs" Line="54" Column="11" />
-      <File FileName="APUWebBot/ApuBot.cs" Line="304" Column="50" />
+      <File FileName="APUWebBot/Program.cs" Line="16" Column="13" />
+      <File FileName="APUWebBot/Models/LectureItem.cs" Line="79" Column="36" />
+      <File FileName="APUWebBot/ApuBot.cs" Line="528" Column="16" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />

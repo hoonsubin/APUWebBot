@@ -62,7 +62,8 @@ namespace APUWebBot.Models
                     {"Wednesday", 3},
                     {"Thursday", 4},
                     {"Friday", 5},
-                    {"Session", 99}
+                    {"Session", 99},
+                    {"T.B.A.", 99}
                 };
 
                 return dayOfWeekToInt[DayOfWeek];

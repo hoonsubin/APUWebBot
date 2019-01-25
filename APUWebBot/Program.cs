@@ -13,6 +13,7 @@ namespace APUWebBot
         {
             GetLecturesDemo();
             //SreachLectureDemo();
+            
         }
 
         /// <summary>
