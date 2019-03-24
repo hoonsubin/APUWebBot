@@ -13,4 +13,8 @@
   <ItemGroup>
     <None Remove="%28For 2011 Curriculum Students%29 2018 Fall Semester Course Timetable.xlsx" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Models\Item.cs" />
+    <Compile Remove="Models\AcademicEvents.cs" />
+  </ItemGroup>
 </Project>

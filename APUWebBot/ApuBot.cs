@@ -34,7 +34,7 @@ namespace APUWebBot
         private static List<string> GetLinksFromMainPage(string menu = "01")
         {
 
-            //Link of the Academic Office homepage, this will be the starting location=
+            //Link of the Academic Office homepage, this will be the starting location
             string uri = enAcademicCalendarUri;
 
             //XPath syntax for searching the Academic Office page menus
@@ -43,7 +43,7 @@ namespace APUWebBot
             //the url that will be outputted
             string outLink;
 
-            //declare a list that will contain all the uris found in the menj
+            //declare a list that will contain all the uris found in the main page
             var uriList = new List<string>();
 
             try
@@ -53,6 +53,7 @@ namespace APUWebBot
                 var document = web.Load(uri);
                 var currentUri = new Uri(uri);
 
+                
                 //this defines the tables in the html document, the ancestor of the element using the defined XPath
                 var pageBody = document.DocumentNode.SelectSingleNode(xpath);
 
@@ -91,7 +92,7 @@ namespace APUWebBot
                 //the xpath expression for defining the elements
                 string xpath = "//table[contains(@class, 'fcktable')]/tbody";
 
-                //load the entire html document from the given uri
+                //load the entire html document from the given uri, and assign it to document variable
                 var web = new HtmlWeb();
                 var document = web.Load(uri);
 
@@ -224,10 +225,10 @@ namespace APUWebBot
         /// Return the list of all academic events from the academic calendar
         /// </summary>
         /// <returns>The event list</returns>
-        public static ObservableCollection<Item> AcademicEventList()
+        public static ObservableCollection<AcademicEvent> AcademicEventList()
         {
             //this method will output the list of items
-            ObservableCollection<Item> items = new ObservableCollection<Item>();
+            ObservableCollection<AcademicEvent> items = new ObservableCollection<AcademicEvent>();
 
             //menu number 1 represents the Academic Calendar
             //iterate through all the links in the menu
@@ -246,7 +247,7 @@ namespace APUWebBot
                     string[] calendarItems = rowFixed.Split(delimiter);
 
                     //add the item with the given parameters
-                    items.Add(new Item
+                    items.Add(new AcademicEvent
                     {
                         //Id = Guid.NewGuid().ToString(),
                         EventName = calendarItems[2],
@@ -265,8 +266,6 @@ namespace APUWebBot
         {
             string timetablePageUri = GetLinksFromMainPage("03")[0];
 
-            string lastDate = "";
-
             string xpath = $"//div[contains(@class, 'entry')]";
 
             try
@@ -274,15 +273,11 @@ namespace APUWebBot
                 //load the html document from the given link
                 HtmlWeb web = new HtmlWeb();
                 var document = web.Load(timetablePageUri);
-                var currentUri = new Uri(timetablePageUri);
+                //var currentUri = new Uri(timetablePageUri);
                 //define the xlsx links in the html document, the ancestor of the element using the defined XPath
                 var pageBody = document.DocumentNode.SelectSingleNode(xpath);
 
                 string[] links = pageBody.SelectNodes("./ul/li")[0].InnerText.Split(' ');
-
-                lastDate = pageBody.SelectNodes("./ul/li")[0].InnerText;
-
-                //return lastDate;
 
                 return links[links.Length - 1].Replace(")", "");
             }
@@ -407,6 +402,8 @@ namespace APUWebBot
         /// <returns>Lecture Items List</returns>
         public static ObservableCollection<LectureItem> LecturesList()
         {
+            //todo: seprate normal class timetable and session timetables
+
             var lectures = new ObservableCollection<LectureItem>();
 
             //get the uri that has the lecture timetables in xlsx file
@@ -453,7 +450,7 @@ namespace APUWebBot
                         semesterOrCurr[1] = semesterOrCurr[1].Replace(")", "");
 
                         string buildingFloor = lectureArray[4];
-                        //change building format
+                        //change building format to a more readable one
                         if (lectureArray[4] != "T.B.A.")
                         {
                             buildingFloor = lectureArray[4].Replace("-", " building ").Replace("Ⅱ", "II");

@@ -47,6 +47,7 @@ namespace APUWebBot.Models
         //what semester the lecture is (ex: 2018 Fall)
         public string Semester { get; set; }
 
+        //which curriculum student it is for
         public string Curriculum { get; set; }
 
         public string StartTime { get; set; }
@@ -62,7 +63,6 @@ namespace APUWebBot.Models
                     {"Wednesday", 3},
                     {"Thursday", 4},
                     {"Friday", 5},
-                    {"Session", 99},
                     {"T.B.A.", 99}
                 };
 
@@ -136,6 +136,7 @@ namespace APUWebBot.Models
             return SubjectNameEN == other.SubjectNameEN && Semester == other.Semester && Curriculum == other.Curriculum;
         }
 
+        //override the object comparison logic with the one above
         public override bool Equals(object obj) => Equals(obj as LectureItem);
 
         public override int GetHashCode() => (SubjectNameEN, Semester, Curriculum).GetHashCode();

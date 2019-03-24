@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System;
 using System.Threading.Tasks;
@@ -7,7 +7,7 @@ using System.Linq;
 namespace APUWebBot.Models
 {
     //this item class shows the calendar items
-    public class Item: IEquatable<Item>
+    public class AcademicEvents: IEquatable<AcademicEvents>
     {
         public int Id { get; set; }
         //name of the event, which should be descriptive
@@ -37,14 +37,14 @@ namespace APUWebBot.Models
         }
 
         //check if the name of the event and the starting date of the event is the same
-        public bool Equals(Item other)
+        public bool Equals(AcademicEvents other)
         {
             if (other is null)
                 return false;
             return EventName == other.EventName && StartDateTime == other.StartDateTime;
         }
 
-        public override bool Equals(object obj) => Equals(obj as Item);
+        public override bool Equals(object obj) => Equals(obj as AcademicEvents);
         public override int GetHashCode() => (EventName, StartDateTime).GetHashCode();
     }
 }

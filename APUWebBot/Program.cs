@@ -12,8 +12,6 @@ namespace APUWebBot
         static void Main(string[] args)
         {
             GetLecturesDemo();
-            //SreachLectureDemo();
-            
         }
 
         /// <summary>
