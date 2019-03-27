@@ -16,5 +16,7 @@
   <ItemGroup>
     <Compile Remove="Models\Item.cs" />
     <Compile Remove="Models\AcademicEvents.cs" />
+    <Compile Remove="Models\IQuarterCourse.cs" />
+    <Compile Remove="Models\LectureItem.cs" />
   </ItemGroup>
 </Project>

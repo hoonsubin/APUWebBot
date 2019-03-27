@@ -300,27 +300,21 @@ namespace APUWebBot
         /// <returns>The online timetable last date.</returns>
         public static string GetOnlineTimetableLastDate()
         {
+            //open course timetable page from the academic office website
             string timetablePageUri = GetLinksFromMainPage("03")[0];
 
             string xpath = $"//div[contains(@class, 'entry')]";
 
-            try
-            {
-                //load the html document from the given link
-                HtmlWeb web = new HtmlWeb();
-                var document = web.Load(timetablePageUri);
-                //var currentUri = new Uri(timetablePageUri);
-                //define the xlsx links in the html document, the ancestor of the element using the defined XPath
-                var pageBody = document.DocumentNode.SelectSingleNode(xpath);
+            //load the html document from the given link
+            HtmlWeb web = new HtmlWeb();
+            var document = web.Load(timetablePageUri);
 
-                string[] links = pageBody.SelectNodes("./ul/li")[0].InnerText.Split(' ');
+            //define the xlsx links in the html document, the ancestor of the element using the defined XPath
+            var pageBody = document.DocumentNode.SelectSingleNode(xpath);
 
-                return links[links.Length - 1].Replace(")", "");
-            }
-            catch(Exception)
-            {
-                return null;
-            }
+            string[] links = pageBody.SelectNodes("./ul/li")[0].InnerText.Split(' ');
+
+            return links[links.Length - 1].Replace(")", "");
         }
 
         /// <summary>
@@ -336,43 +330,34 @@ namespace APUWebBot
 
             var timetableStreams = new List<Stream>();
 
-            try
+            //load the html document from the given link
+            HtmlWeb web = new HtmlWeb();
+            var document = web.Load(timetablePageUri);
+            var currentUri = new Uri(timetablePageUri);
+
+            //define the xlsx links in the html document, the ancestor of the element using the defined XPath
+            var pageBody = document.DocumentNode.SelectSingleNode(xpath);
+
+            //follow the sibling of the current node div with the given class
+            foreach (var a in pageBody.SelectNodes("./ul/li/a"))
             {
-                //load the html document from the given link
-                HtmlWeb web = new HtmlWeb();
-                var document = web.Load(timetablePageUri);
-                var currentUri = new Uri(timetablePageUri);
+                //get all the xlsx download links
+                string xlsxDownloadUri = "http://" + currentUri.Host + a.Attributes["href"].Value;
 
-                //define the xlsx links in the html document, the ancestor of the element using the defined XPath
-                var pageBody = document.DocumentNode.SelectSingleNode(xpath);
+                //create a http request and response
+                var req = WebRequest.Create(xlsxDownloadUri);
+                var response = req.GetResponse();
 
-                //follow the sibling of the current node div with the given class
-                foreach (var a in pageBody.SelectNodes("./ul/li/a"))
-                {
-                    //where the xlsx file is
-                    string xlsxDownloadUri = "http://" + currentUri.Host + a.Attributes["href"].Value;
+                //get the web response into stream
+                Stream stream = response.GetResponseStream();
 
-                    //create a http request and response
-                    var req = WebRequest.Create(xlsxDownloadUri);
-                    var response = req.GetResponse();
-
-                    //get the web response into stream
-                    Stream stream = response.GetResponseStream();
-
-                    timetableStreams.Add(stream);
-                    //timetablePaths.Add(downloadPath + a.InnerText + ".xlsx");
-                    //downloadedTimetables.Add(xlsxUri);
-                }
-
-                //return the list of byte streams for all the timetables
-                return timetableStreams;
-
+                timetableStreams.Add(stream);
+                //timetablePaths.Add(downloadPath + a.InnerText + ".xlsx");
+                //downloadedTimetables.Add(xlsxUri);
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-                return null;
-            }
+
+            //return the list of byte streams for all the timetables
+            return timetableStreams;
         }
 
         /// <summary>
@@ -428,7 +413,6 @@ namespace APUWebBot
                     }
                 }
             }
-
             return rawStringData;
         }
 
@@ -436,11 +420,9 @@ namespace APUWebBot
         /// Return the List of Lecture Items from the Academic Office website xlsx file. This is where the cleanup of the streamed data happends
         /// </summary>
         /// <returns>Lecture Items List</returns>
-        public static ObservableCollection<LectureItem> LecturesList()
+        public static ObservableCollection<Lecture> LecturesList()
         {
-            //todo: make a Lecture super class with multiple sub classes
-
-            var lectures = new ObservableCollection<LectureItem>();
+            var lectures = new ObservableCollection<Lecture>();
 
             //get the uri that has the lecture timetables in xlsx file
             var lectureTimetableuri = GetLinksFromMainPage("03")[0];
@@ -450,11 +432,11 @@ namespace APUWebBot
 
             var dayOfWeekFull = new Dictionary<string, string>
             {
-                {"Mon", "Monday"},
-                {"Tue", "Tuesday"},
-                {"Wed", "Wednesday"},
-                {"Thu", "Thursday"},
-                {"Fri", "Friday"}
+                {"月/Mon.", "Monday"},
+                {"火/Tue.", "Tuesday"},
+                {"水/Wed.", "Wednesday"},
+                {"木/Thu.", "Thursday"},
+                {"金/Fri.", "Friday"}
             };
 
             var periodStartTime = new Dictionary<string, string>
@@ -480,12 +462,13 @@ namespace APUWebBot
                     //only add the items that has a proper subject id
                     if (lectureArray[5] != "NA" && lectureArray[5] != "講義CD/Subject CD")
                     {
-                        //split the semester and curriculum string into two
-                        string[] semesterOrCurr = lectureArray[15].Split('(');
-                        semesterOrCurr[0] = semesterOrCurr[0].Replace("Timetable", "").Trim();
-                        semesterOrCurr[1] = semesterOrCurr[1].Replace(")", "");
+                        //split the semester and curriculum string into two and declare them
+                        string[] semesterOrCurr = lectureArray[lectureArray.Length - 1].Split('(');
+                        string semester = semesterOrCurr[0].Replace("Timetable", "").Replace(" Semester", "").Trim();
+                        string curriculum = semesterOrCurr[1].Replace("For ", "").Replace(" Curriculum students)", "");
 
                         string buildingFloor = lectureArray[4];
+
                         //change building format to a more readable one
                         if (lectureArray[4] != "T.B.A.")
                         {
@@ -497,38 +480,87 @@ namespace APUWebBot
 
                         //change day of week format only if it's not "Session"
                         string dayOfWeek = lectureArray[1].Contains("Session") ? "Session" :
-                        dayOfWeekFull[lectureArray[1].Replace(".", "").Remove(0, 2)];
+                        dayOfWeekFull[lectureArray[1]];
 
                         string classPeriod = lectureArray[2].Contains("T.B.A.") ? "T.B.A." :
-                             OrderedNumber(lectureArray[2].Normalize(System.Text.NormalizationForm.FormKC)) + " Period" ;
+                             OrderedNumber(lectureArray[2].Normalize(System.Text.NormalizationForm.FormKC)) + " Period";
+
+                        string grade = OrderedNumber(lectureArray[12].Remove(1, 2)) + " Year";
 
                         //todo: organize a single lecture with multiple periods and day of weeks
                         //warning: a single lecture may have multiple periods in one day, and the same periods with multiple days
                         //ex: Lecture A, 2st period, Monday, Thursday/Lecture B, 4th period, 5th period, Tuesday
 
-                        //add the lecture item to the list
-                        lectures.Add(new LectureItem
+                        if (lectureArray[0].Contains("Semester"))
                         {
-                            Term = lectureArray[0],
-                            DayOfWeek = dayOfWeek,
-                            Period = classPeriod,
-                            Classroom = lectureArray[3].Replace("Ⅱ","II "),
-                            BuildingFloor = buildingFloor,
-                            SubjectId = lectureArray[5],
-                            SubjectNameJP = lectureArray[6],
-                            SubjectNameEN = lectureArray[7],
-                            InstructorJP = lectureArray[8],
-                            InstructorEN = lectureArray[9],
-                            Language = lectureArray[10],
-                            Grade = OrderedNumber(lectureArray[11].Remove(1, 2)) + " Year",
-                            Field = lectureArray[12],
-                            APS = lectureArray[13],
-                            APM = lectureArray[14],
-                            Semester = semesterOrCurr[0].Replace(" Semester", ""),
-                            Curriculum = semesterOrCurr[1].Remove(0, 4).Replace(" students", ""),
-                            StartTime = periodStartTime[classPeriod]
-                        });
+                            lectures.Add(new SemesterCourse
+                            {
+                                Term = "Semester",
+                                Classroom = lectureArray[3].Replace("Ⅱ", "II "),
+                                BuildingFloor = buildingFloor,
+                                SubjectId = lectureArray[5],
+                                SubjectNameJP = lectureArray[6],
+                                SubjectNameEN = lectureArray[7],
+                                InstructorJP = lectureArray[8],
+                                InstructorEN = lectureArray[9],
+                                GradeEval = lectureArray[10],
+                                Language = lectureArray[11],
+                                Grade = grade,
+                                Field = lectureArray[13],
+                                APS = lectureArray[14],
+                                APM = lectureArray[15],
+                                Semester = semester,
+                                Curriculum = curriculum
+                            });
+                        }
+                        else if (lectureArray[0].Contains("Q"))
+                        {
+                            lectures.Add(new QuarterCourse
+                            {
+                                Term = lectureArray[0],
+                                Classroom = lectureArray[3].Replace("Ⅱ", "II "),
+                                BuildingFloor = buildingFloor,
+                                SubjectId = lectureArray[5],
+                                SubjectNameJP = lectureArray[6],
+                                SubjectNameEN = lectureArray[7],
+                                InstructorJP = lectureArray[8],
+                                InstructorEN = lectureArray[9],
+                                GradeEval = lectureArray[10],
+                                Language = lectureArray[11],
+                                Grade = grade,
+                                Field = lectureArray[13],
+                                APS = lectureArray[14],
+                                APM = lectureArray[15],
+                                Semester = semester,
+                                Curriculum = curriculum
+                            });
+
+                        }
+                        else if (lectureArray[0].Contains("Session"))
+                        {
+                            lectures.Add(new SessionCourse
+                            {
+                                Term = "Session",
+                                Classroom = lectureArray[3].Replace("Ⅱ", "II "),
+                                BuildingFloor = buildingFloor,
+                                SubjectId = lectureArray[5],
+                                SubjectNameJP = lectureArray[6],
+                                SubjectNameEN = lectureArray[7],
+                                InstructorJP = lectureArray[8],
+                                InstructorEN = lectureArray[9],
+                                GradeEval = lectureArray[10],
+                                Language = lectureArray[11],
+                                Grade = grade,
+                                Field = lectureArray[13],
+                                APS = lectureArray[14],
+                                APM = lectureArray[15],
+                                Semester = semester,
+                                Curriculum = curriculum
+                            });
+                        }
+
                     }
+
                 }
             }
             return lectures;
@@ -582,5 +614,46 @@ namespace APUWebBot
             return outNumber;
 
         }
+
+        /// <summary>
+        /// Converts day of week and period to row and column for the timetable
+        /// </summary>
+        /// <returns>row|column for the timetable</returns>
+        /// <param name="dayOfWeek">Day of week.</param>
+        /// <param name="period">Period.</param>
+        private static TimetableCell ConvertToTableRowCol(string dayOfWeek, string period)
+        {
+
+            //convert the DayOfWeek value to a number, missing value is 99
+            var dayOfWeekToInt = new Dictionary<string, int>
+            {
+                {"Monday", 1},
+                {"Tuesday", 2},
+                {"Wednesday", 3},
+                {"Thursday", 4},
+                {"Friday", 5},
+                {"T.B.A.", 99}
+            };
+
+            int col = dayOfWeekToInt[dayOfWeek];
+
+            //convert the first char of the Period attribute to int, missing value is 99
+            int row = (int)char.GetNumericValue(period[0]);
+
+            //the timetable row max number is 6, anything above 6 will be considered missing
+            if (row == -1)
+            {
+                row = 99;
+            }
+
+            var timetableCell = new TimetableCell
+            {
+                Row = row,
+                Column = col
+            };
+
+            return timetableCell;
+        }
+
     }
 }

@@ -10,7 +10,7 @@ namespace APUWebBot
     {
         static void Main(string[] args)
         {
-            AcademicCalendarDemo();
+            GetLecturesDemo();
         }
 
         #region Demo Methods
@@ -54,32 +54,29 @@ namespace APUWebBot
             //initiate the CSV file which works like a database
             var csv = new StringBuilder();
 
-            var lectureList = new List<LectureItem>();
+            var lectureList = new List<Lecture>();
 
             try
             {
-                //loop through the links that has the xlsx file in the course timetable website
                 foreach (var i in ApuBot.LecturesList())
                 {
-                    lectureList.Add(i);
-                }
-                foreach (var i in lectureList)
-                {
-                    string row = i.Term + ApuBot.delimiter
-                    + i.DayOfWeek + ApuBot.delimiter
-                        + i.Period + ApuBot.delimiter
-                    + i.SubjectNameEN + ApuBot.delimiter
-                        + i.TimetableCol + " - " + i.TimetableRow + ApuBot.delimiter
-                    + i.Semester + ApuBot.delimiter
-                        + i.Curriculum + ApuBot.delimiter
-                    + i.BuildingFloor + ApuBot.delimiter
-                        + i.Classroom + ApuBot.delimiter
-                    + i.InstructorEN + ApuBot.delimiter
-                        + i.Grade;
+                    if (!lectureList.Contains(i))
+                    {
+                        lectureList.Add(i);
 
-                    Console.WriteLine(row);
+                        string row = i.Term + ApuBot.delimiter
+                            + i.SubjectNameEN + ApuBot.delimiter
+                        + i.Semester + ApuBot.delimiter
+                            + i.Curriculum + ApuBot.delimiter
+                        + i.BuildingFloor + ApuBot.delimiter
+                            + i.Classroom + ApuBot.delimiter
+                        + i.InstructorEN + ApuBot.delimiter
+                            + i.Grade;
 
-                    csv.AppendLine(row);
+                        Console.WriteLine(row);
+
+                        csv.AppendLine(row);
+                    }
                 }
 
                 //file path for the output
@@ -100,78 +97,66 @@ namespace APUWebBot
         static void SreachLectureDemo()
         {
             Console.WriteLine("Starting up the database...");
-            //the list that the engine should look to
-            var database = ApuBot.LecturesList();
-
-            while (true)
+            try
             {
-                Console.WriteLine("There are " + database.Count + " lectures");
-                Console.WriteLine("Type a search term (type exit to terminate): ");
-                string query = Console.ReadLine();
-                if (query.ToLower().Contains("exit"))
-                {
-                    Console.WriteLine("Exiting...");
-                    break;
-                }
-                if (query != "")
-                {
-                    Console.WriteLine("Searching...");
-                    var searchTime = System.Diagnostics.Stopwatch.StartNew();
+                //the list that the engine should look to
+                var database = ApuBot.LecturesList();
 
-                    //the results after the filtering
-                    var searchResults = new List<LectureItem>();
-
-                    //the search algorithm starts here, currently it's just a simple linear filtering
-                    //loop through the database
-                    foreach (var i in database)
+                while (true)
+                {
+                    Console.WriteLine("There are " + database.Count + " lectures");
+                    Console.WriteLine("Type a search term (type exit to terminate): ");
+                    string query = Console.ReadLine();
+                    if (query.ToLower().Contains("exit"))
                     {
-                        //loop through the tags of the item
-                        foreach (var tag in i.SearchTags)
+                        Console.WriteLine("Exiting...");
+                        break;
+                    }
+                    if (query != "")
+                    {
+                        Console.WriteLine("Searching...");
+                        var searchTime = System.Diagnostics.Stopwatch.StartNew();
+
+                        //the results after the filtering
+                        var searchResults = new List<ILecture>();
+
+                        //the search algorithm starts here, currently it's just a simple linear filtering
+                        //loop through the database
+                        foreach (var i in database)
                         {
-                            //prevent same results to be in the list
-                            if (!searchResults.Contains(i))
+                            //todo: implement search logic
+                        }
+
+                        //show the search results
+                        if (searchResults.Count > 0)
+                        {
+                            foreach (var res in searchResults)
                             {
-                                //add the item to the list if it contains the word
-                                //this will be the main search algorithm
-                                if (tag.Contains(query.ToLower()))
-                                {
-                                    searchResults.Add(i);
-                                }
+                                //Console.WriteLine(res.SubjectNameEN + " subject ID: " + res.SubjectId);
+                                Console.WriteLine(res.Term + ApuBot.delimiter
+                                    + res.SubjectNameEN + ApuBot.delimiter
+                                    + res.Classroom + ApuBot.delimiter
+                                    + res.InstructorEN + ApuBot.delimiter
+                                    + res.Grade);
                             }
-                            else
-                            {
-                                continue;
-                            }
+                            searchTime.Stop();
+                            Console.WriteLine("Took " + searchTime.ElapsedMilliseconds.ToString() + " ms");
+                            Console.WriteLine("Found " + searchResults.Count + " items");
+                            Console.WriteLine("============================");
+                        }
+                        else
+                        {
+                            Console.WriteLine("No results found");
+                            Console.WriteLine("============================");
                         }
                     }
 
-                    //show the search results
-                    if (searchResults.Count > 0)
-                    {
-                        foreach (var res in searchResults)
-                        {
-                            //Console.WriteLine(res.SubjectNameEN + " subject ID: " + res.SubjectId);
-                            Console.WriteLine(res.Term + ApuBot.delimiter
-                            + res.DayOfWeek + ApuBot.delimiter
-                                + res.SubjectNameEN + ApuBot.delimiter
-                            + res.StartTime + " - " + res.EndTime + ApuBot.delimiter
-                                + res.Classroom + ApuBot.delimiter
-                            + res.Period + ApuBot.delimiter
-                                + res.InstructorEN + ApuBot.delimiter
-                            + res.Grade);
-                        }
-                        searchTime.Stop();
-                        Console.WriteLine("Took " + searchTime.ElapsedMilliseconds.ToString() + " ms");
-                        Console.WriteLine("Found " + searchResults.Count + " items");
-                        Console.WriteLine("============================");
-                    }
-                    else
-                    {
-                        Console.WriteLine("No results found");
-                        Console.WriteLine("============================");
-                    }
                 }
 
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex);
             }
         }
         #endregion

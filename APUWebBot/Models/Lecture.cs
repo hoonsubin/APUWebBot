@@ -1,20 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
+
 namespace APUWebBot.Models
 {
-    public class Lecture
+    public class Lecture : IEquatable<Lecture>, ILecture
     {
         public Lecture()
         {
         }
-
         public int Id { get; set; }
 
-        //the duration and start of lecture (semester course, Q1, Q2)
         public string Term { get; set; }
-
-        public string DayOfWeek { get; set; }
-
-        public string Period { get; set; }
 
         public string Classroom { get; set; }
 
@@ -30,23 +26,36 @@ namespace APUWebBot.Models
 
         public string InstructorEN { get; set; }
 
+        public string GradeEval { get; set; }
+
         public string Language { get; set; }
 
         public string Grade { get; set; }
 
         public string Field { get; set; }
-        //which field in APS
+
         public string APS { get; set; }
-        //which field in APM
+
         public string APM { get; set; }
 
-        //add public SyllabusItem Syllabus { get; set; }
-        //what semester the lecture is (ex: 2018 Fall)
         public string Semester { get; set; }
 
-        //which curriculum student it is for
         public string Curriculum { get; set; }
 
-        public string StartTime { get; set; }
+        public List<TimetableCell> TimetableCells { get; set; }
+
+        //check if the subject name, lecture semester and curriculum is the same
+        public bool Equals(Lecture other)
+        {
+            if (other is null)
+                return false;
+            return SubjectNameEN == other.SubjectNameEN && Semester == other.Semester && Curriculum == other.Curriculum;
+        }
+
+        //override the object comparison logic with the one above
+        public override bool Equals(object obj) => Equals(obj as Lecture);
+
+        public override int GetHashCode() => (SubjectNameEN, Semester, Curriculum).GetHashCode();
+
     }
 }
