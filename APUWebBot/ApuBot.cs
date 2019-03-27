@@ -17,14 +17,55 @@ namespace APUWebBot
     /// </summary>
     public static class ApuBot
     {
-
+        #region fields
         //the delimiter for dividing the cells
         public const char delimiter = '|';
 
-        //link for english academic calendar
-        const string enAcademicCalendarUri = "http://en.apu.ac.jp/academic/top/curriculum_17.html/?c=17";
+        //the uri for the academic office homepage
+        const string enAcademicPageUri = "http://en.apu.ac.jp/academic/";
+        const string jpAcademicPageUri = "http://www.apu.ac.jp/academic/";
 
+        //the search API for getting the syllabus information
         const string syllabusSearchUri = "https://portal2.apu.ac.jp/campusp/slbssbdr.do?value%28risyunen%29=2018&value%28semekikn%29=2&value%28kougicd%29=";
+        #endregion
+
+        /// <summary>
+        /// Returns a list of all the curriculum top pages in the Academic Office page in URIs
+        /// </summary>
+        /// <returns>curriculum top pages URIs</returns>
+        private static List<string> GetCurriculums()
+        {
+            var curriculums = new List<string>();
+
+            string uri = enAcademicPageUri;
+
+            string xpath = $"//div[starts-with(@class, 'panel')]";
+
+            string outLink;
+
+            HtmlWeb web = new HtmlWeb();
+            var document = web.Load(uri);
+            var currentUri = new Uri(uri);
+
+            //this defines the tables in the html document, the ancestor of the element using the defined XPath
+            var pageBody = document.DocumentNode.SelectNodes(xpath);
+
+            //iterate through all the panels in the page
+            foreach (var panel in pageBody)
+            {
+                foreach (var a in panel.SelectNodes("./a"))
+                {
+                    //get the value of href in the current node
+                    outLink = "http://" + currentUri.Host + a.Attributes["href"].Value;
+
+                    //add the uri to the list that is going to get returned
+                    curriculums.Add(outLink);
+                }
+
+            }
+            return curriculums;
+
+        }
 
         /// <summary>
         /// Get all the links found in the Academic Office menu as a string
@@ -35,7 +76,7 @@ namespace APUWebBot
         {
 
             //Link of the Academic Office homepage, this will be the starting location
-            string uri = enAcademicCalendarUri;
+            string uri = GetCurriculums()[0];
 
             //XPath syntax for searching the Academic Office page menus
             string xpath = $"//div[contains(@class, 'menu_title curriculum{menu}')]";
@@ -46,40 +87,32 @@ namespace APUWebBot
             //declare a list that will contain all the uris found in the main page
             var uriList = new List<string>();
 
-            try
+            //it loads the html document from the given link
+            HtmlWeb web = new HtmlWeb();
+            var document = web.Load(uri);
+            var currentUri = new Uri(uri);
+
+
+            //this defines the tables in the html document, the ancestor of the element using the defined XPath
+            var pageBody = document.DocumentNode.SelectSingleNode(xpath);
+
+            //follow the sibliing of the current node div with the given class
+            foreach (var ul in pageBody.SelectNodes("following-sibling::ul"))
             {
-                //it loads the html document from the given link
-                HtmlWeb web = new HtmlWeb();
-                var document = web.Load(uri);
-                var currentUri = new Uri(uri);
-
-                
-                //this defines the tables in the html document, the ancestor of the element using the defined XPath
-                var pageBody = document.DocumentNode.SelectSingleNode(xpath);
-
-                //follow the sibliing of the current node div with the given class
-                foreach (var ul in pageBody.SelectNodes("following-sibling::ul"))
+                //go throught the list node and get the href and the inner text
+                foreach (var li in ul.SelectNodes("./li/a"))
                 {
-                    //go throught the list node and get the href and the inner text
-                    foreach (var li in ul.SelectNodes("./li/a"))
-                    {
-                        //get the value of href in the current node
-                        outLink = "http://" + currentUri.Host + li.Attributes["href"].Value;
+                    //get the value of href in the current node
+                    outLink = "http://" + currentUri.Host + li.Attributes["href"].Value;
 
-                        //add the uri to the list that is going to get returned
-                        uriList.Add(outLink);
-                    }
+                    //add the uri to the list that is going to get returned
+                    uriList.Add(outLink);
                 }
-                return uriList;
             }
-            catch (Exception)
-            {
-
-                //if there is no link, or some other problem comes up, output an
-                return null;
-            }
+            return uriList;
         }
 
+        #region Academic Calendar
         /// <summary>
         /// Scrape all the text from the calendar table. This will only scrape the table for content.
         /// </summary>
@@ -258,6 +291,9 @@ namespace APUWebBot
             return items;
         }
 
+        #endregion
+
+        #region Course Timetable
         /// <summary>
         /// Gets the online lecture timetable's last updated date
         /// </summary>
@@ -402,7 +438,7 @@ namespace APUWebBot
         /// <returns>Lecture Items List</returns>
         public static ObservableCollection<LectureItem> LecturesList()
         {
-            //todo: seprate normal class timetable and session timetables
+            //todo: make a Lecture super class with multiple sub classes
 
             var lectures = new ObservableCollection<LectureItem>();
 
@@ -497,6 +533,8 @@ namespace APUWebBot
             }
             return lectures;
         }
+
+        #endregion
 
         /// <summary>
         /// Read the input Stream and convert that into a Byte array

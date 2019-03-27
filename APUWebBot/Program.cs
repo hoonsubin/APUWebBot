@@ -8,11 +8,12 @@ namespace APUWebBot
 {
     class Program
     {
-
         static void Main(string[] args)
         {
-            GetLecturesDemo();
+            AcademicCalendarDemo();
         }
+
+        #region Demo Methods
 
         /// <summary>
         /// This demo will get the values from the academic calendar online, and convert that into a list
@@ -21,21 +22,28 @@ namespace APUWebBot
         {
             //initiate the CSV file which works like a database
             var csv = new StringBuilder();
-
-            foreach (var item in ApuBot.AcademicEventList())
+            try
             {
-                //combine all the properties in the object to a single line
-                string row = item.StartDateTime + ApuBot.delimiter + item.DayOfWeek + ApuBot.delimiter + item.EventName;
+                foreach (var item in ApuBot.AcademicEventList())
+                {
+                    //combine all the properties in the object to a single line
+                    string row = item.StartDateTime + ApuBot.delimiter + item.DayOfWeek + ApuBot.delimiter + item.EventName;
 
-                Console.WriteLine(row);
+                    Console.WriteLine(row);
 
-                csv.AppendLine(row);
+                    csv.AppendLine(row);
+                }
+                //file path for the output
+                string filePath = @"output-calendar.csv";
+
+                //output the csv file
+                File.WriteAllText(filePath, csv.ToString());
             }
-            //file path for the output
-            string filePath = @"output-calendar.csv";
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
 
-            //output the csv file
-            File.WriteAllText(filePath, csv.ToString());
         }
 
         /// <summary>
@@ -166,7 +174,6 @@ namespace APUWebBot
 
             }
         }
-
-
+        #endregion
     }
 }
