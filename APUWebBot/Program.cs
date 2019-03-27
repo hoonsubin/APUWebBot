@@ -54,29 +54,32 @@ namespace APUWebBot
             //initiate the CSV file which works like a database
             var csv = new StringBuilder();
 
-            var lectureList = new List<Lecture>();
+            var lectureList = ApuBot.LecturesList();
 
             try
             {
-                foreach (var i in ApuBot.LecturesList())
+                foreach (var i in lectureList)
                 {
-                    if (!lectureList.Contains(i))
+                    //lectureList.Add(i);
+
+                    string row = i.Term + ApuBot.delimiter
+                        + i.SubjectNameEN + ApuBot.delimiter
+                    + i.Semester + ApuBot.delimiter
+                        + i.Curriculum + ApuBot.delimiter
+                    + i.BuildingFloor + ApuBot.delimiter
+                        + i.Classroom + ApuBot.delimiter
+                    + i.InstructorEN + ApuBot.delimiter
+                        + i.Grade + ApuBot.delimiter;
+
+                    foreach (var n in i.TimetableCells)
                     {
-                        lectureList.Add(i);
-
-                        string row = i.Term + ApuBot.delimiter
-                            + i.SubjectNameEN + ApuBot.delimiter
-                        + i.Semester + ApuBot.delimiter
-                            + i.Curriculum + ApuBot.delimiter
-                        + i.BuildingFloor + ApuBot.delimiter
-                            + i.Classroom + ApuBot.delimiter
-                        + i.InstructorEN + ApuBot.delimiter
-                            + i.Grade;
-
-                        Console.WriteLine(row);
-
-                        csv.AppendLine(row);
+                        row += n.DayOfWeek + "-" + n.Period
+                            + $"[{n.Column} - {n.Row}]" + ApuBot.delimiter;
                     }
+
+                    Console.WriteLine(row);
+
+                    csv.AppendLine(row);
                 }
 
                 //file path for the output

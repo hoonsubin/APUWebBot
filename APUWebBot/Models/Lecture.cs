@@ -7,8 +7,15 @@ namespace APUWebBot.Models
     {
         public Lecture()
         {
+            TimetableCells = new List<TimetableCell>();
         }
-        public int Id { get; set; }
+
+        public void AddCell(TimetableCell cell)
+        {
+            TimetableCells.Add(cell);
+        }
+
+        int Id { get; set; }
 
         public string Term { get; set; }
 
@@ -42,7 +49,7 @@ namespace APUWebBot.Models
 
         public string Curriculum { get; set; }
 
-        public List<TimetableCell> TimetableCells { get; set; }
+        public List<TimetableCell> TimetableCells;
 
         //check if the subject name, lecture semester and curriculum is the same
         public bool Equals(Lecture other)

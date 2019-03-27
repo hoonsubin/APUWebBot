@@ -7,6 +7,7 @@ namespace APUWebBot.Models
     {
         public SessionCourse()
         {
+            Term = "Session";
         }
     }
 }

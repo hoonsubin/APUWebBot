@@ -424,6 +424,8 @@ namespace APUWebBot
         {
             var lectures = new ObservableCollection<Lecture>();
 
+            var timeTableCells = new List<TimetableCell>();
+
             //get the uri that has the lecture timetables in xlsx file
             var lectureTimetableuri = GetLinksFromMainPage("03")[0];
 
@@ -487,83 +489,128 @@ namespace APUWebBot
 
                         string grade = OrderedNumber(lectureArray[12].Remove(1, 2)) + " Year";
 
-                        //todo: organize a single lecture with multiple periods and day of weeks
-                        //warning: a single lecture may have multiple periods in one day, and the same periods with multiple days
-                        //ex: Lecture A, 2st period, Monday, Thursday/Lecture B, 4th period, 5th period, Tuesday
+                        var thisLecture = new Lecture 
+                        {
+                            Classroom = lectureArray[3].Replace("Ⅱ", "II "),
+                            BuildingFloor = buildingFloor,
+                            SubjectId = lectureArray[5],
+                            SubjectNameJP = lectureArray[6],
+                            SubjectNameEN = lectureArray[7],
+                            InstructorJP = lectureArray[8],
+                            InstructorEN = lectureArray[9],
+                            GradeEval = lectureArray[10],
+                            Language = lectureArray[11],
+                            Grade = grade,
+                            Field = lectureArray[13],
+                            APS = lectureArray[14],
+                            APM = lectureArray[15],
+                            Semester = semester,
+                            Curriculum = curriculum
+                        };
 
-                        if (lectureArray[0].Contains("Semester"))
+                        //start instantiating objects
+                        if (!lectureArray[0].Contains("Session"))
                         {
-                            lectures.Add(new SemesterCourse
-                            {
-                                Term = "Semester",
-                                Classroom = lectureArray[3].Replace("Ⅱ", "II "),
-                                BuildingFloor = buildingFloor,
-                                SubjectId = lectureArray[5],
-                                SubjectNameJP = lectureArray[6],
-                                SubjectNameEN = lectureArray[7],
-                                InstructorJP = lectureArray[8],
-                                InstructorEN = lectureArray[9],
-                                GradeEval = lectureArray[10],
-                                Language = lectureArray[11],
-                                Grade = grade,
-                                Field = lectureArray[13],
-                                APS = lectureArray[14],
-                                APM = lectureArray[15],
-                                Semester = semester,
-                                Curriculum = curriculum
-                            });
+                            timeTableCells.Add(TimetableCell.Parse(dayOfWeek, classPeriod, periodStartTime[classPeriod], lectureArray[7], semester, curriculum));
                         }
-                        else if (lectureArray[0].Contains("Q"))
-                        {
-                            lectures.Add(new QuarterCourse
-                            {
-                                Term = lectureArray[0],
-                                Classroom = lectureArray[3].Replace("Ⅱ", "II "),
-                                BuildingFloor = buildingFloor,
-                                SubjectId = lectureArray[5],
-                                SubjectNameJP = lectureArray[6],
-                                SubjectNameEN = lectureArray[7],
-                                InstructorJP = lectureArray[8],
-                                InstructorEN = lectureArray[9],
-                                GradeEval = lectureArray[10],
-                                Language = lectureArray[11],
-                                Grade = grade,
-                                Field = lectureArray[13],
-                                APS = lectureArray[14],
-                                APM = lectureArray[15],
-                                Semester = semester,
-                                Curriculum = curriculum
-                            });
 
-                        }
-                        else if (lectureArray[0].Contains("Session"))
+
+                        if (!lectures.Contains(thisLecture))
                         {
-                            lectures.Add(new SessionCourse
+                            if (lectureArray[0].Contains("Semester"))
                             {
-                                Term = "Session",
-                                Classroom = lectureArray[3].Replace("Ⅱ", "II "),
-                                BuildingFloor = buildingFloor,
-                                SubjectId = lectureArray[5],
-                                SubjectNameJP = lectureArray[6],
-                                SubjectNameEN = lectureArray[7],
-                                InstructorJP = lectureArray[8],
-                                InstructorEN = lectureArray[9],
-                                GradeEval = lectureArray[10],
-                                Language = lectureArray[11],
-                                Grade = grade,
-                                Field = lectureArray[13],
-                                APS = lectureArray[14],
-                                APM = lectureArray[15],
-                                Semester = semester,
-                                Curriculum = curriculum
-                            });
+                                lectures.Add(new SemesterCourse
+                                {
+                                    Classroom = thisLecture.Classroom,
+                                    BuildingFloor = thisLecture.BuildingFloor,
+                                    SubjectId = thisLecture.SubjectId,
+                                    SubjectNameJP = thisLecture.SubjectNameJP,
+                                    SubjectNameEN = thisLecture.SubjectNameEN,
+                                    InstructorJP = thisLecture.InstructorJP,
+                                    InstructorEN = thisLecture.InstructorEN,
+                                    GradeEval = thisLecture.GradeEval,
+                                    Language = thisLecture.Language,
+                                    Grade = thisLecture.Grade,
+                                    Field = thisLecture.Field,
+                                    APS = thisLecture.APS,
+                                    APM = thisLecture.APM,
+                                    Semester = thisLecture.Semester,
+                                    Curriculum = thisLecture.Curriculum
+                                });
+                            }
+                            else if (lectureArray[0].Contains("Q"))
+                            {
+                                lectures.Add(new QuarterCourse
+                                {
+                                    Term = lectureArray[0],
+                                    Classroom = thisLecture.Classroom,
+                                    BuildingFloor = thisLecture.BuildingFloor,
+                                    SubjectId = thisLecture.SubjectId,
+                                    SubjectNameJP = thisLecture.SubjectNameJP,
+                                    SubjectNameEN = thisLecture.SubjectNameEN,
+                                    InstructorJP = thisLecture.InstructorJP,
+                                    InstructorEN = thisLecture.InstructorEN,
+                                    GradeEval = thisLecture.GradeEval,
+                                    Language = thisLecture.Language,
+                                    Grade = thisLecture.Grade,
+                                    Field = thisLecture.Field,
+                                    APS = thisLecture.APS,
+                                    APM = thisLecture.APM,
+                                    Semester = thisLecture.Semester,
+                                    Curriculum = thisLecture.Curriculum
+                                });
+
+                            }
+                            else if (lectureArray[0].Contains("Session"))
+                            {
+                                lectures.Add(new SessionCourse
+                                {
+                                    Classroom = thisLecture.Classroom,
+                                    BuildingFloor = thisLecture.BuildingFloor,
+                                    SubjectId = thisLecture.SubjectId,
+                                    SubjectNameJP = thisLecture.SubjectNameJP,
+                                    SubjectNameEN = thisLecture.SubjectNameEN,
+                                    InstructorJP = thisLecture.InstructorJP,
+                                    InstructorEN = thisLecture.InstructorEN,
+                                    GradeEval = thisLecture.GradeEval,
+                                    Language = thisLecture.Language,
+                                    Grade = thisLecture.Grade,
+                                    Field = thisLecture.Field,
+                                    APS = thisLecture.APS,
+                                    APM = thisLecture.APM,
+                                    Semester = thisLecture.Semester,
+                                    Curriculum = thisLecture.Curriculum
+                                });
+                            }
                         }
+
+
 
                     }
 
                 }
             }
+
+            AddTimetableCellsToList(lectures, timeTableCells);
+
+
             return lectures;
+        }
+
+        private static void AddTimetableCellsToList(ObservableCollection<Lecture> lectureList, List<TimetableCell> timetableCells)
+        {
+            foreach (var lecture in lectureList)
+            {
+                foreach (var cell in timetableCells)
+                {
+                    if (cell.Equals(lecture))
+                    {
+                        lecture.AddCell(cell);
+                    }
+                }
+            }
+
+
         }
 
         #endregion
@@ -615,45 +662,7 @@ namespace APUWebBot
 
         }
 
-        /// <summary>
-        /// Converts day of week and period to row and column for the timetable
-        /// </summary>
-        /// <returns>row|column for the timetable</returns>
-        /// <param name="dayOfWeek">Day of week.</param>
-        /// <param name="period">Period.</param>
-        private static TimetableCell ConvertToTableRowCol(string dayOfWeek, string period)
-        {
 
-            //convert the DayOfWeek value to a number, missing value is 99
-            var dayOfWeekToInt = new Dictionary<string, int>
-            {
-                {"Monday", 1},
-                {"Tuesday", 2},
-                {"Wednesday", 3},
-                {"Thursday", 4},
-                {"Friday", 5},
-                {"T.B.A.", 99}
-            };
-
-            int col = dayOfWeekToInt[dayOfWeek];
-
-            //convert the first char of the Period attribute to int, missing value is 99
-            int row = (int)char.GetNumericValue(period[0]);
-
-            //the timetable row max number is 6, anything above 6 will be considered missing
-            if (row == -1)
-            {
-                row = 99;
-            }
-
-            var timetableCell = new TimetableCell
-            {
-                Row = row,
-                Column = col
-            };
-
-            return timetableCell;
-        }
 
     }
 }

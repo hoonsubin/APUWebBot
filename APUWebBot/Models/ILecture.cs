@@ -4,7 +4,7 @@ namespace APUWebBot.Models
 {
     public interface ILecture
     {
-        int Id { get; set; }
+        //int Id { get; set; }
         string Term { get; set; }
         string Classroom { get; set; }
         string BuildingFloor { get; set; }
@@ -21,7 +21,7 @@ namespace APUWebBot.Models
         string APM { get; set; }
         string Semester { get; set; }
         string Curriculum { get; set; }
-        List<TimetableCell> TimetableCells { get; set; }
+        //List<TimetableCell> TimetableCells;
 
         bool Equals(Lecture other);
         bool Equals(object obj);
