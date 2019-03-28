@@ -8,11 +8,12 @@ namespace APUWebBot
 {
     class Program
     {
+
         static void Main(string[] args)
         {
-            //SreachLectureDemo();
+            SreachLectureDemo();
 
-            GetLecturesDemo();
+            //GetLecturesDemo();
         }
 
         #region Demo Methods
@@ -109,7 +110,7 @@ namespace APUWebBot
 
                 while (true)
                 {
-                    Console.WriteLine("There are " + database.Count + " lectures");
+                    Console.WriteLine("There are " + database.Count + " lectures in the database");
                     Console.WriteLine("Type a search term (type exit to terminate): ");
                     string query = Console.ReadLine().ToLower();
 
@@ -119,57 +120,38 @@ namespace APUWebBot
                         break;
                     }
 
-                    if (query != "")
+                    Console.WriteLine("Searching...");
+
+                    //search the given database with the given query
+                    var searchResults = SearchEngine.SearchLecture(query, database);
+
+                    //show the search results
+                    if (SearchEngine.ResultCount > 0)
                     {
-                        Console.WriteLine("Searching...");
-                        var searchTime = System.Diagnostics.Stopwatch.StartNew();
-
-                        //the results after the filtering
-                        var searchResults = new List<Lecture>();
-
-                        //the search algorithm starts here, currently it's just a simple linear filtering
-                        //loop through the database
-                        foreach (var i in database)
+                        foreach (var res in searchResults)
                         {
-                            //todo: implement search logic
-                            foreach (var searchTag in i.SearchTags)
+                            string outputRow = res.Term + ApuBot.delimiter
+                                + res.SubjectNameEN + ApuBot.delimiter
+                                + res.Classroom + ApuBot.delimiter
+                                + res.InstructorEN + ApuBot.delimiter
+                                + res.Grade + ApuBot.delimiter;
+
+                            foreach (var n in res.TimetableCells)
                             {
-                                if (searchTag.Contains(query))
-                                {
-                                    searchResults.Add(i);
-                                }
+                                outputRow += n.DayOfWeek + "-" + n.Period
+                                    + $"[{n.Column} - {n.Row}]" + ApuBot.delimiter;
                             }
-                        }
 
-                        //show the search results
-                        if (searchResults.Count > 0)
-                        {
-                            foreach (var res in searchResults)
-                            {
-                                string outputRow = res.Term + ApuBot.delimiter
-                                    + res.SubjectNameEN + ApuBot.delimiter
-                                    + res.Classroom + ApuBot.delimiter
-                                    + res.InstructorEN + ApuBot.delimiter
-                                    + res.Grade + ApuBot.delimiter;
-
-                                foreach (var n in res.TimetableCells)
-                                {
-                                    outputRow += n.DayOfWeek + "-" + n.Period
-                                        + $"[{n.Column} - {n.Row}]" + ApuBot.delimiter;
-                                }
-
-                                Console.WriteLine(outputRow);
-                            }
-                            searchTime.Stop();
-                            Console.WriteLine("Took " + searchTime.ElapsedMilliseconds.ToString() + " ms");
-                            Console.WriteLine("Found " + searchResults.Count + " items");
-                            Console.WriteLine("============================");
+                            Console.WriteLine(outputRow);
                         }
-                        else
-                        {
-                            Console.WriteLine("No results found");
-                            Console.WriteLine("============================");
-                        }
+                        Console.WriteLine("Took " + SearchEngine.LastSearchTime + " ms");
+                        Console.WriteLine("Found " + SearchEngine.ResultCount + " items");
+                        Console.WriteLine("============================");
+                    }
+                    else
+                    {
+                        Console.WriteLine("No results found");
+                        Console.WriteLine("============================");
                     }
 
                 }

@@ -102,6 +102,7 @@ namespace APUWebBot.Models
         {
             var outputList = new List<string>
             {
+                Term.ToLower(),
                 Classroom.Replace("FII", "f2"),
                 Classroom.ToLower(),
                 BuildingFloor.Replace("FII", "f2"),
@@ -119,7 +120,7 @@ namespace APUWebBot.Models
                 APM.ToLower(),
                 Semester.ToLower(),
                 Curriculum.ToLower(),
-                Language.Contains("J") ? "japanese" : "english" + " language"
+                Language.Contains("J") ? "japanese" : "english" + " lecture"
             };
 
             foreach (var i in outputList)
