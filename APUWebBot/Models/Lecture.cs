@@ -10,6 +10,7 @@ namespace APUWebBot.Models
             //initilize the lists when this object is constructed
             TimetableCells = new List<TimetableCell>();
             SearchTags = new List<string>();
+
         }
 
         public void AddCell(TimetableCell cell)

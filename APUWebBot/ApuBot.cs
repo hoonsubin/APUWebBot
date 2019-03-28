@@ -489,9 +489,25 @@ namespace APUWebBot
 
                         string grade = OrderedNumber(lectureArray[12].Remove(1, 2)) + " Year";
 
+                        string term = lectureArray[0];
+
+                        if (lectureArray[0].Contains("Session"))
+                        {
+                            term = "Session";
+                        }
+                        else if (lectureArray[0].Contains("Semester"))
+                        {
+                            term = "Semester";
+                        }
+                        else
+                        {
+                            term = lectureArray[0].Contains("2Q") ? "2nd Quarter" : "1st Quarter";
+                        }
+
                         //setup the current lecture item
                         var thisLecture = new Lecture 
                         {
+                            Term = term,
                             Classroom = lectureArray[3].Replace("Ⅱ", "II "),
                             BuildingFloor = buildingFloor,
                             SubjectId = lectureArray[5],
@@ -518,6 +534,11 @@ namespace APUWebBot
                         //check if the list already has this lecture
                         if (!lectures.Contains(thisLecture))
                         {
+                            thisLecture.SetSearchTags();
+
+                            lectures.Add(thisLecture);
+
+                            /*
                             //detrmine if the current lecture item's term, and assign it accordingly
                             if (lectureArray[0].Contains("Semester"))
                             {
@@ -590,6 +611,7 @@ namespace APUWebBot
                                 thisSessionLecture.SetSearchTags();
                                 lectures.Add(thisSessionLecture);
                             }
+                            */
 
                         }
                     }
