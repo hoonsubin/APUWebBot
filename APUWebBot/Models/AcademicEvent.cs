@@ -47,4 +47,25 @@ namespace APUWebBot.Models
         public override bool Equals(object obj) => Equals(obj as AcademicEvent);
         public override int GetHashCode() => (EventName, StartDateTime).GetHashCode();
     }
+    //this model is used for grouping the events by their year and month
+    public class AcademicEventGroup : ObservableCollection<AcademicEvent>
+    {
+        //long display name for the group, this will be yyyy/MM
+        public string Heading { get; private set; }
+
+        public string JumpList
+        {
+            get
+            {
+                return Heading.Remove(0, 5);
+            }
+        }
+
+        //set the heading of the group, this is used to make new groups
+        public AcademicEventGroup(string heading)
+        {
+            Heading = heading;
+        }
+
+    }
 }

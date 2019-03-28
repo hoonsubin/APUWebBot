@@ -10,6 +10,8 @@ namespace APUWebBot
     {
         static void Main(string[] args)
         {
+            //SreachLectureDemo();
+
             GetLecturesDemo();
         }
 
@@ -109,25 +111,34 @@ namespace APUWebBot
                 {
                     Console.WriteLine("There are " + database.Count + " lectures");
                     Console.WriteLine("Type a search term (type exit to terminate): ");
-                    string query = Console.ReadLine();
-                    if (query.ToLower().Contains("exit"))
+                    string query = Console.ReadLine().ToLower();
+
+                    if (query.Contains("exit"))
                     {
                         Console.WriteLine("Exiting...");
                         break;
                     }
+
                     if (query != "")
                     {
                         Console.WriteLine("Searching...");
                         var searchTime = System.Diagnostics.Stopwatch.StartNew();
 
                         //the results after the filtering
-                        var searchResults = new List<ILecture>();
+                        var searchResults = new List<Lecture>();
 
                         //the search algorithm starts here, currently it's just a simple linear filtering
                         //loop through the database
                         foreach (var i in database)
                         {
                             //todo: implement search logic
+                            foreach (var searchTag in i.SearchTags)
+                            {
+                                if (searchTag.Contains(query))
+                                {
+                                    searchResults.Add(i);
+                                }
+                            }
                         }
 
                         //show the search results
@@ -135,12 +146,19 @@ namespace APUWebBot
                         {
                             foreach (var res in searchResults)
                             {
-                                //Console.WriteLine(res.SubjectNameEN + " subject ID: " + res.SubjectId);
-                                Console.WriteLine(res.Term + ApuBot.delimiter
+                                string outputRow = res.Term + ApuBot.delimiter
                                     + res.SubjectNameEN + ApuBot.delimiter
                                     + res.Classroom + ApuBot.delimiter
                                     + res.InstructorEN + ApuBot.delimiter
-                                    + res.Grade);
+                                    + res.Grade + ApuBot.delimiter;
+
+                                foreach (var n in res.TimetableCells)
+                                {
+                                    outputRow += n.DayOfWeek + "-" + n.Period
+                                        + $"[{n.Column} - {n.Row}]" + ApuBot.delimiter;
+                                }
+
+                                Console.WriteLine(outputRow);
                             }
                             searchTime.Stop();
                             Console.WriteLine("Took " + searchTime.ElapsedMilliseconds.ToString() + " ms");

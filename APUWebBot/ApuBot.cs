@@ -489,6 +489,7 @@ namespace APUWebBot
 
                         string grade = OrderedNumber(lectureArray[12].Remove(1, 2)) + " Year";
 
+                        //setup the current lecture item
                         var thisLecture = new Lecture 
                         {
                             Classroom = lectureArray[3].Replace("Ⅱ", "II "),
@@ -508,18 +509,19 @@ namespace APUWebBot
                             Curriculum = curriculum
                         };
 
-                        //start instantiating objects
+                        //start instantiating objects. Add all the time cells without filtering
                         if (!lectureArray[0].Contains("Session"))
                         {
-                            timeTableCells.Add(TimetableCell.Parse(dayOfWeek, classPeriod, periodStartTime[classPeriod], lectureArray[7], semester, curriculum));
+                            timeTableCells.Add(TimetableCell.Parse(thisLecture, dayOfWeek, classPeriod, periodStartTime[classPeriod]));
                         }
 
-
+                        //check if the list already has this lecture
                         if (!lectures.Contains(thisLecture))
                         {
+                            //detrmine if the current lecture item's term, and assign it accordingly
                             if (lectureArray[0].Contains("Semester"))
                             {
-                                lectures.Add(new SemesterCourse
+                                var thisSemesterLecture = new SemesterCourse
                                 {
                                     Classroom = thisLecture.Classroom,
                                     BuildingFloor = thisLecture.BuildingFloor,
@@ -536,13 +538,15 @@ namespace APUWebBot
                                     APM = thisLecture.APM,
                                     Semester = thisLecture.Semester,
                                     Curriculum = thisLecture.Curriculum
-                                });
+                                };
+                                thisSemesterLecture.SetSearchTags();
+                                lectures.Add(thisSemesterLecture);
                             }
                             else if (lectureArray[0].Contains("Q"))
                             {
-                                lectures.Add(new QuarterCourse
+                                var thisQuarterLecture = new QuarterCourse
                                 {
-                                    Term = lectureArray[0],
+                                    Term = lectureArray[0].Contains("2Q") ? "2nd Quarter" : "1st Quarter",
                                     Classroom = thisLecture.Classroom,
                                     BuildingFloor = thisLecture.BuildingFloor,
                                     SubjectId = thisLecture.SubjectId,
@@ -558,12 +562,14 @@ namespace APUWebBot
                                     APM = thisLecture.APM,
                                     Semester = thisLecture.Semester,
                                     Curriculum = thisLecture.Curriculum
-                                });
-
+                                };
+                                thisQuarterLecture.SetSearchTags();
+                                thisQuarterLecture.SearchTags.Add(thisQuarterLecture.Term.ToLower());
+                                lectures.Add(thisQuarterLecture);
                             }
                             else if (lectureArray[0].Contains("Session"))
                             {
-                                lectures.Add(new SessionCourse
+                                var thisSessionLecture = new SessionCourse
                                 {
                                     Classroom = thisLecture.Classroom,
                                     BuildingFloor = thisLecture.BuildingFloor,
@@ -580,38 +586,42 @@ namespace APUWebBot
                                     APM = thisLecture.APM,
                                     Semester = thisLecture.Semester,
                                     Curriculum = thisLecture.Curriculum
-                                });
+                                };
+                                thisSessionLecture.SetSearchTags();
+                                lectures.Add(thisSessionLecture);
                             }
+
                         }
-
-
-
                     }
 
                 }
             }
-
+            //add all the timetable cells to all the lectures
             AddTimetableCellsToList(lectures, timeTableCells);
 
 
             return lectures;
         }
 
+        /// <summary>
+        /// Loop through boths lists and add the timetable cell to the corrisponding lecture
+        /// </summary>
+        /// <param name="lectureList">Lecture list.</param>
+        /// <param name="timetableCells">Timetable cells.</param>
         private static void AddTimetableCellsToList(ObservableCollection<Lecture> lectureList, List<TimetableCell> timetableCells)
         {
             foreach (var lecture in lectureList)
             {
                 foreach (var cell in timetableCells)
                 {
-                    if (cell.Equals(lecture))
+                    if (cell.ParentLecture.Equals(lecture))
                     {
                         lecture.AddCell(cell);
                     }
                 }
             }
-
-
         }
+
 
         #endregion
 

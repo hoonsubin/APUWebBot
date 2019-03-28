@@ -3,37 +3,35 @@ using System.Collections.Generic;
 
 namespace APUWebBot.Models
 {
-    public class TimetableCell : IEquatable<Lecture>
+    public class TimetableCell
     {
         public TimetableCell()
         {
         }
-        public string SubjectNameEN { get; set; }
 
-        public string Semester { get; set; }
+        public Lecture ParentLecture { get; set; }
 
-        public string Curriculum { get; set; }
+        public int Row { get; private set; }
 
-        public int Row;
+        public int Column { get; private set; }
 
-        public int Column;
+        public string DayOfWeek { get; set; }
 
-        public string DayOfWeek;
+        public string Period { get; set; }
 
-        public string Period;
+        public string ClassStartTime { get; set; }
 
-        public string ClassStartTime;
+        public string ClassEndTime { get; private set; }
 
-        public string ClassEndTime
-        {
-            get
-            {
-                //return the StartTime value, but added 1 hour and 35 minutes to it
-                return ClassStartTime.Contains("T.B.A.") ? "T.B.A." : DateTime.ParseExact(ClassStartTime, "HH:mm", null).AddHours(1).AddMinutes(35).ToString("HH:mm");
-            }
-        }
-
-        public static TimetableCell Parse(string dayOfWeek, string period, string classStartTime, string subjectName, string semester, string curriculum)
+        /// <summary>
+        /// Parse and return a timetable cell
+        /// </summary>
+        /// <returns>new timetable cell</returns>
+        /// <param name="lecture">Lecture.</param>
+        /// <param name="dayOfWeek">Day of week.</param>
+        /// <param name="period">Period.</param>
+        /// <param name="classStartTime">Class start time.</param>
+        public static TimetableCell Parse(Lecture lecture, string dayOfWeek, string period, string classStartTime)
         {
             //convert the DayOfWeek value to a number, missing value is 99
             var dayOfWeekToInt = new Dictionary<string, int>
@@ -59,31 +57,30 @@ namespace APUWebBot.Models
 
             var timetableCell = new TimetableCell
             {
+                ParentLecture = lecture,
                 Row = row,
                 Column = col,
                 DayOfWeek = dayOfWeek,
                 Period = period,
                 ClassStartTime = classStartTime,
-                SubjectNameEN = subjectName,
-                Semester = semester,
-                Curriculum = curriculum
+                ClassEndTime = classStartTime.Contains("T.B.A.") ? "T.B.A." : DateTime.ParseExact(classStartTime, "HH:mm", null).AddHours(1).AddMinutes(35).ToString("HH:mm")
             };
 
             return timetableCell;
         }
 
-        //check if the subject name, lecture semester and curriculum is the same
-        public bool Equals(Lecture other)
+        /// <summary>
+        /// Check if the timetable is conflicting
+        /// </summary>
+        /// <returns><c>true</c>, if the row and the column is the same, <c>false</c> otherwise.</returns>
+        /// <param name="other">Other.</param>
+        public bool HasConflict(TimetableCell other)
         {
             if (other is null)
                 return false;
-            return SubjectNameEN == other.SubjectNameEN && Semester == other.Semester && Curriculum == other.Curriculum;
+
+            return Row == other.Row && Column == other.Column;
         }
-
-        //override the object comparison logic with the one above
-        public override bool Equals(object obj) => Equals(obj as Lecture);
-
-        public override int GetHashCode() => (SubjectNameEN, Semester, Curriculum).GetHashCode();
 
     }
 }
