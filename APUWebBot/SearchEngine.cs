@@ -20,9 +20,9 @@ namespace APUWebBot
         /// <returns>list of results</returns>
         /// <param name="query">Query.</param>
         /// <param name="database">Database.</param>
-        public static ObservableCollection<Lecture>SearchLecture(string query, ObservableCollection<Lecture> database)
+        public static List<Lecture>SearchLecture(string query, List<Lecture> database)
         {
-            var results = new ObservableCollection<Lecture>();
+            var results = new List<Lecture>();
 
             //make the search query lowercase and trim it
             query = query.ToLower().Trim();

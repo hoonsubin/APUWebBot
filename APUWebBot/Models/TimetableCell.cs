@@ -1,14 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using SQLite;
+using SQLiteNetExtensions.Attributes;
 
 namespace APUWebBot.Models
 {
+    [Table("TimetableCells")]
     public class TimetableCell
     {
         public TimetableCell()
         {
         }
 
+        #region Properties
+
+        [PrimaryKey, AutoIncrement]
+        public int Id { get; set; }
+
+        [ForeignKey(typeof(Lecture))]
+        public int LectureId { get; set; }
+
+        [ManyToOne]
         public Lecture ParentLecture { get; set; }
 
         public int Row { get; private set; }
@@ -23,6 +35,8 @@ namespace APUWebBot.Models
 
         public string ClassEndTime { get; private set; }
 
+        #endregion
+
         /// <summary>
         /// Parse and return a timetable cell
         /// </summary>
@@ -33,16 +47,32 @@ namespace APUWebBot.Models
         /// <param name="classStartTime">Class start time.</param>
         public static TimetableCell Parse(Lecture lecture, string dayOfWeek, string period, string classStartTime)
         {
+            if (lecture.Term.Contains("Session"))
+            {
+                //sessions have a different start and end time
+                //so manually add them
+                return new TimetableCell
+                {
+                    ParentLecture = lecture,
+                    Row = 99,
+                    Column = 99,
+                    ClassStartTime = "T.B.A.",
+                    DayOfWeek = dayOfWeek,
+                    Period = period,
+                    ClassEndTime = "T.B.A" 
+                };
+            }
+
             //convert the DayOfWeek value to a number, missing value is 99
             var dayOfWeekToInt = new Dictionary<string, int>
-            {
-                {"Monday", 1},
-                {"Tuesday", 2},
-                {"Wednesday", 3},
-                {"Thursday", 4},
-                {"Friday", 5},
-                {"T.B.A.", 99}
-            };
+                {
+                    {"Monday", 1},
+                    {"Tuesday", 2},
+                    {"Wednesday", 3},
+                    {"Thursday", 4},
+                    {"Friday", 5},
+                    {"T.B.A.", 99}
+                };
 
             int col = dayOfWeekToInt[dayOfWeek];
 
@@ -55,7 +85,7 @@ namespace APUWebBot.Models
                 row = 99;
             }
 
-            var timetableCell = new TimetableCell
+            return new TimetableCell
             {
                 ParentLecture = lecture,
                 Row = row,
@@ -65,8 +95,6 @@ namespace APUWebBot.Models
                 ClassStartTime = classStartTime,
                 ClassEndTime = classStartTime.Contains("T.B.A.") ? "T.B.A." : DateTime.ParseExact(classStartTime, "HH:mm", null).AddHours(1).AddMinutes(35).ToString("HH:mm")
             };
-
-            return timetableCell;
         }
 
         /// <summary>

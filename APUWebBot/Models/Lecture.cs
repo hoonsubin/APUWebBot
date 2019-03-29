@@ -1,24 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using SQLite;
+using SQLiteNetExtensions.Attributes;
 
 namespace APUWebBot.Models
 {
+    [Table("Lectures")]
     public class Lecture : IEquatable<Lecture>, ILecture
     {
         public Lecture()
         {
             //initilize the lists when this object is constructed
-            TimetableCells = new List<TimetableCell>();
-            SearchTags = new List<string>();
+            //TimetableCells = new List<TimetableCell>();
+            //SearchTags = new List<string>();
 
         }
 
-        public void AddCell(TimetableCell cell)
-        {
-            TimetableCells.Add(cell);
-        }
+        #region Properties
 
-        int Id { get; set; }
+        [PrimaryKey, AutoIncrement]
+        public int Id { get; set; }
 
         public string Term { get; set; }
 
@@ -52,9 +53,62 @@ namespace APUWebBot.Models
 
         public string Curriculum { get; set; }
 
-        public List<TimetableCell> TimetableCells;
+        [OneToMany(CascadeOperations = CascadeOperation.All)]
+        public List<TimetableCell> TimetableCells { get; set; }
 
-        public List<string> SearchTags { get; private set; }
+        #endregion
+
+        public void AddCell(TimetableCell cell)
+        {
+            //create a new List of there is none
+            if (TimetableCells == null)
+            {
+                TimetableCells = new List<TimetableCell>();
+            }
+            TimetableCells.Add(cell);
+        }
+
+        public List<string> SearchTags
+        {
+            get
+            {
+
+                var outputList = new List<string>
+                {
+                    Term.ToLower(),
+                    Classroom.Replace("FII", "f2").ToLower(),
+                    BuildingFloor.Replace("FII", "f2").ToLower(),
+                    SubjectId.ToLower(),
+                    SubjectNameJP,
+                    SubjectNameEN.ToLower(),
+                    InstructorJP,
+                    InstructorEN.ToLower(),
+                    Language.ToLower(),
+                    Grade.Replace("Year", "grade").ToLower(),
+                    Field.ToLower(),
+                    APS.ToLower(),
+                    APM.ToLower(),
+                    Semester.ToLower(),
+                    Curriculum.ToLower(),
+                    Language.Contains("J") ? "japanese" : "english" + " lecture"
+                };
+                if (TimetableCells != null)
+                {
+                    foreach (var i in TimetableCells)
+                    {
+                        if (!outputList.Contains(i.DayOfWeek.ToLower()))
+                        {
+                            outputList.Add(i.DayOfWeek.ToLower());
+                        }
+                        if (!outputList.Contains(i.Period.ToLower()))
+                        {
+                            outputList.Add(i.Period.ToLower());
+                        }
+                    }
+                }
+                return outputList;
+            }
+        }
 
         #region IEquatable
         //check if the subject name, lecture semester and curriculum is the same
@@ -98,43 +152,5 @@ namespace APUWebBot.Models
             //this will return true even if there's only one conflicting item
             return hasConflict;
         }
-
-        public void SetSearchTags()
-        {
-            var outputList = new List<string>
-            {
-                Term.ToLower(),
-                Classroom.Replace("FII", "f2"),
-                Classroom.ToLower(),
-                BuildingFloor.Replace("FII", "f2"),
-                BuildingFloor.ToLower(),
-                SubjectId.ToLower(),
-                SubjectNameJP,
-                SubjectNameEN.ToLower(),
-                InstructorJP,
-                InstructorEN.ToLower(),
-                Language.ToLower(),
-                Grade.ToLower(),
-                Grade.Replace("Year", "grade"),
-                Field.ToLower(),
-                APS.ToLower(),
-                APM.ToLower(),
-                Semester.ToLower(),
-                Curriculum.ToLower(),
-                Language.Contains("J") ? "japanese" : "english" + " lecture"
-            };
-
-            foreach (var i in outputList)
-            {
-                SearchTags.Add(i);
-            }
-
-            foreach (var i in TimetableCells)
-            {
-                SearchTags.Add(i.DayOfWeek.ToLower());
-                SearchTags.Add(i.Period.ToLower());
-            }
-        }
-
     }
 }

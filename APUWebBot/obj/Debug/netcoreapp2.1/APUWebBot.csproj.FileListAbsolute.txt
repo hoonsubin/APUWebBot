@@ -13,9 +13,9 @@
 /Users/hoonkim/Documents/Projects/APUWebBot/APUWebBot/bin/Debug/netcoreapp2.1/APUWebBot.runtimeconfig.dev.json
 /Users/hoonkim/Documents/Projects/APUWebBot/APUWebBot/bin/Debug/netcoreapp2.1/APUWebBot.dll
 /Users/hoonkim/Documents/Projects/APUWebBot/APUWebBot/bin/Debug/netcoreapp2.1/APUWebBot.pdb
-/Users/hoonkim/Documents/Projects/APUWebBot/APUWebBot/obj/Debug/netcoreapp2.1/APUWebBot.csprojAssemblyReference.cache
 /Users/hoonkim/Documents/Projects/APUWebBot/APUWebBot/obj/Debug/netcoreapp2.1/APUWebBot.csproj.CoreCompileInputs.cache
 /Users/hoonkim/Documents/Projects/APUWebBot/APUWebBot/obj/Debug/netcoreapp2.1/APUWebBot.AssemblyInfoInputs.cache
 /Users/hoonkim/Documents/Projects/APUWebBot/APUWebBot/obj/Debug/netcoreapp2.1/APUWebBot.AssemblyInfo.cs
 /Users/hoonkim/Documents/Projects/APUWebBot/APUWebBot/obj/Debug/netcoreapp2.1/APUWebBot.dll
 /Users/hoonkim/Documents/Projects/APUWebBot/APUWebBot/obj/Debug/netcoreapp2.1/APUWebBot.pdb
+/Users/hoonkim/Documents/Projects/APUWebBot/APUWebBot/obj/Debug/netcoreapp2.1/APUWebBot.csprojAssemblyReference.cache

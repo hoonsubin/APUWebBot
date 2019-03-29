@@ -3,12 +3,15 @@ using System.Collections.ObjectModel;
 using System;
 using System.Threading.Tasks;
 using System.Linq;
+using SQLite;
 
 namespace APUWebBot.Models
 {
+    [Table("AcademicEvents")]
     //this item class shows the calendar items
     public class AcademicEvent : IEquatable<AcademicEvent>
     {
+        [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
         //name of the event, which should be descriptive
         public string EventName { get; set; }
