@@ -207,7 +207,7 @@ namespace APUWebBot
 
         static async Task CleanDatabaseAsync()
         {
-            var listFromDb = await Database.GetLecturesAsync();
+            var listFromDb = await Database.GetAllLecturesAsync();
 
             if (listFromDb.Count <= 0)
             {
@@ -231,7 +231,7 @@ namespace APUWebBot
 
         static async Task GetDatabaseContentAsync()
         {
-            var listFromDb = await Database.GetLecturesAsync();
+            var listFromDb = await Database.GetAllLecturesAsync();
 
             if (listFromDb.Count <= 0)
             {
@@ -239,12 +239,13 @@ namespace APUWebBot
                 var newLectures = ApuBot.LecturesList();
 
                 await Database.SaveAllLecturesAsync(newLectures);
+
                 Console.WriteLine("Finished saving all the lectures!");
             }
             else
             {
                 Console.WriteLine($"Found {listFromDb.Count} items from an existing database, listing all of them...");
-                var currentLectures = await Database.GetLecturesAsync();
+                var currentLectures = await Database.GetAllLecturesAsync();
                 foreach (var i in currentLectures)
                 {
                     string row = i.Term + ApuBot.delimiter

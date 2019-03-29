@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using SQLite;
 using SQLiteNetExtensionsAsync.Extensions;
 using System.IO;
+using System.Linq;
 
 namespace APUWebBot
 {
@@ -57,10 +58,11 @@ namespace APUWebBot
 
         #region Lecture Database
         //get all the lectures in the database, it will return the result as a list
-        public Task<List<Lecture>> GetLecturesAsync()
+        public Task<List<Lecture>> GetAllLecturesAsync()
         {
             Console.WriteLine("[DataStore]Getting lectures from database");
-            return _database.Table<Lecture>().ToListAsync();
+            //return _database.Table<Lecture>().ToListAsync();
+            return _database.GetAllWithChildrenAsync<Lecture>();
         }
 
         public Task SaveAllLecturesAsync(List<Lecture> lectures)
@@ -73,20 +75,19 @@ namespace APUWebBot
                     _database.InsertOrReplaceAllWithChildrenAsync(i.TimetableCells, true);
                 }
             }
-            Console.WriteLine("[DataStore]Saving all the lectures from the list");
+            //Console.WriteLine("[DataStore]Saving all the lectures from the list");
             return _database.InsertOrReplaceAllWithChildrenAsync(lectures, true);
-        }
-
-        //return the item from the database with the given id
-        public Task<Lecture> GetLectureByIdAsync(int id)
-        {
-            Console.WriteLine("[DataStore]Getting item with the ID " + id);
-            return _database.Table<Lecture>().Where(i => i.Id == id).FirstOrDefaultAsync();
         }
 
         //save the given item to the database
         public Task SaveLectureAsync(Lecture lecture)
         {
+            if (lecture.TimetableCells.Count > 0)
+            {
+                Console.WriteLine("[DataStore]Saving all the timetable cells from the lecture " + lecture.SubjectNameEN + " by " + lecture.InstructorEN);
+                _database.InsertOrReplaceAllWithChildrenAsync(lecture.TimetableCells, true);
+            }
+
             Console.WriteLine("[DataStore]Inserting new item " + lecture.SubjectNameEN + " by " + lecture.InstructorEN);
             return _database.InsertOrReplaceWithChildrenAsync(lecture, recursive: true);
         }
@@ -101,6 +102,11 @@ namespace APUWebBot
         //delete the given item from the database
         public Task DeleteLectureAsync(Lecture lecture)
         {
+            if (lecture.TimetableCells.Count > 0)
+            {
+                Console.WriteLine("[DataStore]Deleting timecell...");
+                _database.DeleteAllAsync(lecture.TimetableCells, true);
+            }
             Console.WriteLine("[DataStore]Deleting item " + lecture.SubjectNameEN + " ID: " + lecture.Id);
             return _database.DeleteAsync(lecture, true);
         }
