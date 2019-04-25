@@ -40,7 +40,7 @@ namespace APUWebBot
             foreach (var item in ApuBot.AcademicEventList())
             {
                 //combine all the properties in the object to a single line
-                string row = item.StartDateTime + ApuBot.delimiter + item.DayOfWeek + ApuBot.delimiter + item.EventName;
+                string row = item.StartDateTime + ApuBot.delimiter + item.DayOfWeek + ApuBot.delimiter + item.EventNameEn;
 
                 Console.WriteLine(row);
 
@@ -200,9 +200,6 @@ namespace APUWebBot
                     Console.WriteLine("Input a valid option");
                 }
             }
-
-
-
         }
 
         static async Task CleanDatabaseAsync()
@@ -233,6 +230,7 @@ namespace APUWebBot
         {
             var listFromDb = await Database.GetAllLecturesAsync();
 
+            //check if the database is empty or not
             if (listFromDb.Count <= 0)
             {
                 Console.WriteLine("The database is empty, will get new lectures");
@@ -257,6 +255,7 @@ namespace APUWebBot
                     + i.InstructorEN + ApuBot.delimiter
                         + i.Grade + ApuBot.delimiter;
 
+
                     if (i.TimetableCells != null)
                     {
                         foreach (var n in i.TimetableCells)
@@ -270,9 +269,11 @@ namespace APUWebBot
                         Console.WriteLine("No timetable cell");
                     }
 
-
                     Console.WriteLine(row);
                 }
+                var lectureListJson = Database.SerializeToJson(listFromDb);
+
+                Console.WriteLine(lectureListJson);
             }
         }
         #endregion

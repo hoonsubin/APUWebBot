@@ -29,6 +29,8 @@ namespace APUWebBot
         const string syllabusSearchUri = "https://portal2.apu.ac.jp/campusp/slbssbdr.do?value%28risyunen%29=2018&value%28semekikn%29=2&value%28kougicd%29=";
         #endregion
 
+        //https://portal2.apu.ac.jp/campusp/slbssbdr.do?value%28risyunen%29={LectureYear}&value%28semekikn%29=1&value%28kougicd%29={lectureID}
+
         /// <summary>
         /// Returns a list of all the curriculum top pages in the Academic Office page in URIs
         /// </summary>
@@ -158,14 +160,15 @@ namespace APUWebBot
                             .Replace("&nbsp;", "Empty")
                             .Replace("&darr;", "New Year's Day")
                             .Replace("&rsquo;", "\'")
-                            .Replace("\n(Back-up Examination)", "");
+                            .Replace("\n(Back-up Examination)", "")
+                            .Replace("\n（期末試験予備日）", "");
 
                         //check for the first and second column
                         //because the year column is only available in the first and second row
                         if (col == 0 || col == 1)
                         {
                             //change the date column to Date|Month (only applies for the first row
-                            if (currentCell == "Date") { currentCell = "Date" + delimiter + "Month"; }
+                            if (currentCell == "Date" || currentCell == "日付") { currentCell = "Date" + delimiter + "Month"; }
                             //replace the - to a delimiter
                             currentCell = currentCell.Replace('-', delimiter);
                         }
@@ -243,9 +246,9 @@ namespace APUWebBot
                 acaEvent[4] = acaEvent[5];
             }
             //mark national holidays into classes as usual
-            else if (acaEvent[5].Contains("Classes as usual"))
+            else if (acaEvent[5].Contains("Classes as usual") || acaEvent[5].Contains("授業日"))
             {
-                acaEvent[4] = acaEvent[4] + "(" + acaEvent[5] + ")";
+                acaEvent[4] = acaEvent[4] + " (" + acaEvent[5] + ")";
             }
 
             //make the final date time string with adding 
@@ -283,7 +286,7 @@ namespace APUWebBot
                     items.Add(new AcademicEvent
                     {
                         //Id = Guid.NewGuid().ToString(),
-                        EventName = calendarItems[2],
+                        EventNameEn = calendarItems[2],
                         StartDateTime = calendarItems[0]
                     });
                 }

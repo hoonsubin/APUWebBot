@@ -110,7 +110,7 @@ namespace APUWebBot.Models
             }
         }
 
-        #region IEquatable
+        #region IEquatable implementation
         //check if the subject name, lecture semester and curriculum is the same
         public bool Equals(Lecture other)
         {

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Xml.Serialization;
 using SQLite;
 using SQLiteNetExtensions.Attributes;
 
@@ -116,6 +118,7 @@ namespace APUWebBot.Models
 
             return Row == other.Row && Column == other.Column;
         }
+
 
     }
 }

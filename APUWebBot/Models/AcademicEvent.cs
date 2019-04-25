@@ -14,7 +14,10 @@ namespace APUWebBot.Models
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
         //name of the event, which should be descriptive
-        public string EventName { get; set; }
+        public string EventNameEn { get; set; }
+
+        public string EventNameJp { get; set; }
+
         //the day of the week in full (ex: Friday, instead of Fri)
         public string DayOfWeek { get { return DateTime.ParseExact(StartDateTime, "yyyy/MM/dd", null).DayOfWeek.ToString(); } }
         //the start day of the event formatted as yyyy/MM/dd (ex: 1992/02/21)
@@ -44,11 +47,11 @@ namespace APUWebBot.Models
         {
             if (other is null)
                 return false;
-            return EventName == other.EventName && StartDateTime == other.StartDateTime;
+            return EventNameEn == other.EventNameEn && StartDateTime == other.StartDateTime;
         }
 
         public override bool Equals(object obj) => Equals(obj as AcademicEvent);
-        public override int GetHashCode() => (EventName, StartDateTime).GetHashCode();
+        public override int GetHashCode() => (EventNameEn, StartDateTime).GetHashCode();
     }
     //this model is used for grouping the events by their year and month
     public class AcademicEventGroup : ObservableCollection<AcademicEvent>

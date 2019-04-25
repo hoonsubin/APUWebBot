@@ -1,20 +1,20 @@
 ﻿<Properties StartupConfiguration="{0A1EE019-A39E-4978-BEB7-83004717C6F8}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="APUWebBot/DataStore.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="APUWebBot/Program.cs">
     <Files>
-      <File FileName="APUWebBot/Program.cs" Line="120" Column="71" />
-      <File FileName="APUWebBot/Models/Lecture.cs" Line="104" Column="26" />
-      <File FileName="APUWebBot/Models/TimetableCell.cs" Line="24" Column="28" />
-      <File FileName="APUWebBot/ApuBot.cs" Line="557" Column="57" />
-      <File FileName="APUWebBot/Models/AcademicEvent.cs" Line="10" Column="27" />
-      <File FileName="APUWebBot/DataStore.cs" Line="30" Column="60" />
+      <File FileName="APUWebBot/Program.cs" Line="95" Column="44" />
+      <File FileName="APUWebBot/ApuBot.cs" Line="248" Column="59" />
+      <File FileName="APUWebBot/DataStore.cs" Line="109" Column="18" />
+      <File FileName="APUWebBot/Models/TimetableCell.cs" Line="121" Column="1" />
+      <File FileName="APUWebBot/Models/Lecture.cs" Line="134" Column="29" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="APUWebBot" expanded="True">
             <Node name="APUWebBot" expanded="True">
+              <Node name="Dependencies" expanded="True" />
               <Node name="Models" expanded="True" />
-              <Node name="DataStore.cs" selected="True" />
+              <Node name="Program.cs" selected="True" />
             </Node>
           </Node>
         </State>

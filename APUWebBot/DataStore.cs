@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using SQLite;
 using SQLiteNetExtensionsAsync.Extensions;
 using System.IO;
-using System.Linq;
+using Newtonsoft.Json;
 
 namespace APUWebBot
 {
@@ -23,9 +23,6 @@ namespace APUWebBot
             _database.CreateTableAsync<TimetableCell>().Wait();
 
         }
-
-
-
         public static string DatabaseFilePath
         {
             get
@@ -39,15 +36,10 @@ namespace APUWebBot
             return new SQLiteAsyncConnection(DatabaseFilePath);
         }
 
-        public string TestMessage()
-        {
-            return "Hello World! testing";
-        }
-
         //get all the lectures in the database, it will return the result as a list
         public Task<List<AcademicEvent>> GetAcademicEventsAsync()
         {
-            return _database.Table<AcademicEvent>().ToListAsync();
+            return _database.GetAllWithChildrenAsync<AcademicEvent>();
         }
 
         //get all the lectures in the database, it will return the result as a list
@@ -67,14 +59,6 @@ namespace APUWebBot
 
         public Task SaveAllLecturesAsync(List<Lecture> lectures)
         {
-            foreach(var i in lectures)
-            {
-                if (i.TimetableCells.Count > 0)
-                {
-                    Console.WriteLine("[DataStore]Saving all the timetable cells from the lecture " + i.SubjectNameEN + " by " + i.InstructorEN);
-                    _database.InsertOrReplaceAllWithChildrenAsync(i.TimetableCells, true);
-                }
-            }
             //Console.WriteLine("[DataStore]Saving all the lectures from the list");
             return _database.InsertOrReplaceAllWithChildrenAsync(lectures, true);
         }
@@ -82,12 +66,6 @@ namespace APUWebBot
         //save the given item to the database
         public Task SaveLectureAsync(Lecture lecture)
         {
-            if (lecture.TimetableCells.Count > 0)
-            {
-                Console.WriteLine("[DataStore]Saving all the timetable cells from the lecture " + lecture.SubjectNameEN + " by " + lecture.InstructorEN);
-                _database.InsertOrReplaceAllWithChildrenAsync(lecture.TimetableCells, true);
-            }
-
             Console.WriteLine("[DataStore]Inserting new item " + lecture.SubjectNameEN + " by " + lecture.InstructorEN);
             return _database.InsertOrReplaceWithChildrenAsync(lecture, recursive: true);
         }
@@ -118,5 +96,39 @@ namespace APUWebBot
         }
 
         #endregion
+
+        /// <summary>
+        /// Serializes the input Lecture object to JSON in string.
+        /// </summary>
+        /// <returns>Serialized json string.</returns>
+        /// <param name="lecture">Lecture.</param>
+        public string SerializeToJson(object lecture)
+        {
+            return JsonConvert.SerializeObject(lecture, Formatting.Indented,
+                new JsonSerializerSettings
+                {
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                });
+        }
+
+        /// <summary>
+        /// Deserializes from json to TimetableCell List.
+        /// </summary>
+        /// <returns>TimetableCell List.</returns>
+        /// <param name="json">Json.</param>
+        public List<TimetableCell> DeserializeTimetableListFromJson(string json)
+        {
+            return JsonConvert.DeserializeObject<List<TimetableCell>>(json);
+        }
+
+        /// <summary>
+        /// Deserializes from json to Lecture object.
+        /// </summary>
+        /// <returns>Lecture object.</returns>
+        /// <param name="json">Json.</param>
+        public List<Lecture> DeserializeLectureListFromJson(string json)
+        {
+            return JsonConvert.DeserializeObject<List<Lecture>>(json);
+        }
     }
 }
