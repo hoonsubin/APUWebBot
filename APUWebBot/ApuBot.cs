@@ -26,7 +26,6 @@ namespace APUWebBot
         const string jpAcademicPageUri = "http://www.apu.ac.jp/academic/";
 
         //the search API for getting the syllabus information
-        const string syllabusSearchUri = "https://portal2.apu.ac.jp/campusp/slbssbdr.do?value%28risyunen%29=2018&value%28semekikn%29=2&value%28kougicd%29=";
         #endregion
 
         //https://portal2.apu.ac.jp/campusp/slbssbdr.do?value%28risyunen%29={LectureYear}&value%28semekikn%29=1&value%28kougicd%29={lectureID}
@@ -35,11 +34,9 @@ namespace APUWebBot
         /// Returns a list of all the curriculum top pages in the Academic Office page in URIs
         /// </summary>
         /// <returns>curriculum top pages URIs</returns>
-        private static List<string> GetCurriculums()
+        private static List<string> GetCurriculums(string uri = enAcademicPageUri)
         {
             var curriculums = new List<string>();
-
-            string uri = enAcademicPageUri;
 
             string xpath = $"//div[starts-with(@class, 'panel')]";
 
@@ -261,10 +258,17 @@ namespace APUWebBot
         /// Return the list of all academic events from the academic calendar
         /// </summary>
         /// <returns>The event list</returns>
-        public static ObservableCollection<AcademicEvent> AcademicEventList()
+        public static List<AcademicEvent> AcademicEventList()
         {
             //this method will output the list of items
-            ObservableCollection<AcademicEvent> items = new ObservableCollection<AcademicEvent>();
+            List<AcademicEvent> items = new List<AcademicEvent>();
+
+            List<string> skipWords = new List<string>
+            {
+                "Date",
+                "New Year's Day",
+                "Empty"
+            };
 
             //menu number 1 represents the Academic Calendar
             //iterate through all the links in the menu
@@ -274,6 +278,8 @@ namespace APUWebBot
                 foreach (string row in GetValueFromTable(i))
                 {
                     //skip to the next iteration if it contains the two characters
+                    //if (skipWords.FirstOrDefault(x => row.Contains(x)) != null) { continue; }
+
                     if (row.Contains("Date") || row.Contains("New Year's Day") && row.Contains("Empty")) { continue; }
 
                     //feed the finalRow to the ChangeDateFormat method
@@ -328,8 +334,6 @@ namespace APUWebBot
         {
             //xpath for finding the div element with the class entry
             string xpath = $"//div[contains(@class, 'entry')]";
-
-            var timetablePaths = new List<string>();
 
             var timetableStreams = new List<Stream>();
 
@@ -388,6 +392,7 @@ namespace APUWebBot
                     //loop all rows
                     for (int y = worksheet.Dimension.Start.Row; y <= worksheet.Dimension.End.Row; y++)
                     {
+                        //todo: change this to a StringBuilder to increase performance
                         string row = "";
                         //loop all columns in a row
                         for (int x = worksheet.Dimension.Start.Column; x <= worksheet.Dimension.End.Column; x++)

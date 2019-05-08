@@ -18,7 +18,8 @@ namespace APUWebBot
             try
             {
                 //GetLecturesDemo();
-                DatabaseDemoAsync().Wait();
+                AcademicCalendarDemo();
+                //DatabaseDemoAsync().Wait();
             }
             catch (Exception ex)
             {
