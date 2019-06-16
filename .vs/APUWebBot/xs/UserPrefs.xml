@@ -1,8 +1,8 @@
 ﻿<Properties StartupConfiguration="{0A1EE019-A39E-4978-BEB7-83004717C6F8}|Default">
   <MonoDevelop.Ide.Workbench ActiveDocument="APUWebBot/ApuBot.cs">
     <Files>
-      <File FileName="APUWebBot/Program.cs" Line="20" Column="19" />
-      <File FileName="APUWebBot/ApuBot.cs" Line="255" Column="1" />
+      <File FileName="APUWebBot/Program.cs" Line="3" Column="17" />
+      <File FileName="APUWebBot/ApuBot.cs" Line="583" Column="54" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">

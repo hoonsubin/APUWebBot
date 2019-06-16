@@ -2,12 +2,10 @@ using System;
 using System.Diagnostics;
 using HtmlAgilityPack;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Net;
 using APUWebBot.Models;
 using OfficeOpenXml;
 using System.IO;
-using System.Linq;
 
 //don't forget to change the namespace and the using libraries when implementing this to the app
 namespace APUWebBot
@@ -575,6 +573,15 @@ namespace APUWebBot
             }
         }
 
+
+        #endregion
+
+        #region CampusTerminal
+        //overall algorithm of CampusTerminal Login function
+        // get user login information -> send cookie with credentials
+        // get page response -> parse html
+        // convert to data struct -> save to database
+        
 
         #endregion
 

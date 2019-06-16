@@ -1,11 +1,7 @@
 using System;
 using System.Text;
 using System.IO;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using APUWebBot.Models;
 using System.Threading.Tasks;
-using SQLite;
 
 namespace APUWebBot
 {
