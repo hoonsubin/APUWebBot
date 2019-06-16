@@ -24,3 +24,7 @@ Services files also contains Helper codes like *DataStore.cs* which accesses SQL
 *SearchEngine.cs* is a class that contains several simple search tools. This method get's a string search query, and list of Lecture objects (database to look through) as parameters and will return a list of matching Lecture items from the given list. The core search algorithm uses a simple foreach loop and string comparisons.
 *APUBot.cs* contains all the core fuctions of the entire APU WebBot project, such as the web scraping algorithm.
 The Models folder contains all the object models that are used for this project such as *AcademicEvent.cs*, *Lecture.cs*, and *TimetableCell.cs*.
+
+## Todo List
+
+ - Implement Campus Terminal scraping algorithm with login forms
