@@ -68,6 +68,7 @@ namespace APUWebBot
         /// Get all the links found in the Academic Office menu as a string
         /// </summary>
         /// <returns>The links from page.</returns>
+        
         /// <param name="menu">Menu.</param>
         private static List<string> GetLinksFromMainPage(string menu = "01")
         {
@@ -93,10 +94,10 @@ namespace APUWebBot
             //this defines the tables in the html document, the ancestor of the element using the defined XPath
             var pageBody = document.DocumentNode.SelectSingleNode(xpath);
 
-            //follow the sibliing of the current node div with the given class
+            //follow the sibling of the current node div with the given class
             foreach (var ul in pageBody.SelectNodes("following-sibling::ul"))
             {
-                //go throught the list node and get the href and the inner text
+                //go through the list node and get the href and the inner text
                 foreach (var li in ul.SelectNodes("./li/a"))
                 {
                     //get the value of href in the current node
@@ -180,7 +181,7 @@ namespace APUWebBot
                         //stack the content with the delimiter till the next row
                         rowContent += currentCell + delimiter;
 
-                        //incrment the column
+                        //increment the column
                         col++;
                     }
 
